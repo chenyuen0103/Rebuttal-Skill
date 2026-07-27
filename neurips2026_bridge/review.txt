@@ -1,0 +1,402 @@
+End-to-End Sequence-Graph Learning for User Behavior Modeling
+Download PDF
+Yuen Chen, Yulun Wu, Samuel Sharpe, Igor Melnyk, Nam H Nguyen, Furong Huang, C. Bayan Bruss, Rizal Fathony 
+04 May 2026 (modified: 27 May 2026)
+NeurIPS 2026 Conference Submission
+Conference, Senior Area Chairs, Area Chairs, Reviewers, Authors
+Revisions
+CC BY 4.0
+TL;DR: We propose an end-to-end framework that jointly models sequential and relational user behavior by integrating sequence models with graph models, achieving better performance than using either paradigm alone.
+Abstract:
+Modeling user behavior has become a core component in industrial applications across a wide range of domains, including e-commerce, social media, health, finance, cybersecurity, streaming platforms, and online gaming. User behaviors inherently consist of both sequential and relational components. Typically, they are represented as sequences of events for each user, such as logging in, visiting pages, viewing products, etc; forming a collection of sequential samples. In addition, other aspects of user behavior form relational information, such as friendships, family ties, or device sharing among users. Traditionally, practitioners modeling user behaviors must choose between two paradigms: treating the data as independent sequences via sequential models, or forcing all information into a graph representation and training a graph model on top of it. We propose that, instead of picking just one paradigm, we represent inherently sequential behavior using a sequence model and incorporate this into a graph model to capture the relational aspects of user behavior. To achieve this, we introduce an end-to-end training framework that jointly optimizes both components. We demonstrate that this unified approach improves model performance compared to relying on graph-only methods, sequence/text-only methods, or two-stage sequence-graph models, where applicable.
+
+Checklist Confirmation: I confirm that I have included a paper checklist in the paper PDF.
+Supplementary Material:  zip
+Financial Support:  Yuen Chen
+Responsible Reviewing: We acknowledge the responsible reviewing obligations as authors.
+Primary Area: AI and network science (e.g., graph neural networks, communication)
+Secondary Area: General machine learning (e.g., core contributions in supervised and unsupervised methods)
+Contribution Type: Use-inspired: The main contribution is in framing or designing approaches to meet the needs of a specific real-world application. (This often involves, e.g., engaging with domain experts.)
+Academic Integrity: I acknowledge that I have read the NeurIPS Handbook and commit to adhering to all policies in the Handbook (https://neurips.cc/Conferences/2026/MainTrackHandbook), the NeurIPS Code of Conduct and the NeurIPS Academic Integrity Policy.
+LLM Usage: Editing (e.g., grammar, spelling, word choice)
+Declaration: I confirm that the above information is accurate.
+Reviewer Nomination:  Yuen Chen
+Ready For LLM Feedback: The submitted PDF is ready for LLM feedback.
+LLM Feedback Request:  Rizal Fathony
+Submission Number: 25120
+Discussion
+Filter by reply type...
+Filter by author...
+Search keywords...
+
+Sort: Newest First
+7 / 7 replies shown
+Add:
+Meta Review of Submission25120 by Area Chair xm4H
+Meta Reviewby Area Chair xm4H22 Jul 2026, 07:41 (modified: 23 Jul 2026, 14:18)Senior Area Chairs, Area Chairs, Authors, Reviewers Submitted, Program Chairs, Area Chair xm4HRevisions
+Metareview:
+In this paper, the authors study an interesting and important problem, i.e., user behavior modeling in industrial applications, and propose a novel solution BRIDGE. However, there are still some critical issues/concerns that need to be addressed (e.g., limited technical novelty, some important works are omitted and more discussion are needed, the compared baselines are not sufficient, the presentation can be improved significantly, etc) so that the paper can be improved significantly, which are raised in the review comments. With the above considerations, I am afraid that this work is not mature yet for acceptance by NeurIPS 2026. Hope the review comments are helpful for improving this work.
+
+Add:
+Official Review of Submission25120 by Reviewer 9PXP
+Official Reviewby Reviewer 9PXP26 Jun 2026, 01:50 (modified: 23 Jul 2026, 12:07)Program Chairs, Senior Area Chairs, Area Chairs, Reviewers Submitted, Authors, Reviewer 9PXPRevisions
+Summary:
+This paper proposes BRIDGE, an end-to-end framework for modeling user behavior by combining user’s event sequences with user-to-user relationship graphs. The model first uses a Transformer to learn a representation of each user’s event history, then compresses this representation into a user embedding and passes it to a graph neural network to incorporate information from related users. The authors evaluate the model on relationship prediction and fraud detection tasks using several real-world datasets. Their results show that combining sequential and relational information through end-to-end training performs better than using only sequence models, only graph models, or training the two components separately.
+
+Contribution Type: General: Most submissions will fall into this type.
+Strengths And Weaknesses:
+Strengths:
+
+Demonstrates strong empirical gains across relationship prediction and fraud detection.
+The computational design, such as compressing user sequences into vector features to decouple graph message passing from sequence length, is very practical.
+The practical design takeaways, such as the ablation studies on neighbor sampling size, sequence encoder depth, and graph context, are very informative.
+Weakness:
+
+The evaluation and method are very close to Relational Deep Learning (RDL), which is highly popular now and thus their omission is unjustified. A new benchmark, RelBench, even uses similar Amazon review data with comparable entity classification tasks (like customer churn, which mirrors this paper's fraud detection task).
+The two-stage baseline (
+) pre-trains sequence embeddings but keeps them completely frozen during graph training , preventing them from adapting to the final task. A fairer comparison would use an unfrozen pipeline that allows the sequence model to fine-tune alongside the graph.
+My main concern is that the paper completely omits Relational Deep Learning (RDL), because of which I feel it is not well-positioned in the literature. The paper either needs to make clear why RDL is not relevant to this work, or show that the proposed method can outperform popular RDL-based methods. While I am willing to reconsider my score if the authors can convince me that RDL methods are not applicable and thus irrelevant, I strongly suggest the authors reposition their paper to better reflect the current literature.
+
+Quality: 2: not good
+Clarity: 2: not good
+Significance: 2: not good
+Originality: 2: not good
+Questions:
+Can the authors compare to RDL approaches like RelGNN [1] and RelGT [2].
+Can the authors compare their method on some of the RelBench datasets [3]?
+The text mentions that the compression module "may be a simple pooling mechanism (such as mean pooling) or any other technique designed to summarize a sequence into a single vector," so it is unclear what was actually used in the experiments. Does it matter what technique we use for this step? It might be useful to show another technique to see if performance changes.
+Can the authors provide an analysis showing if performance goes up for users who are more connected? It would be helpful to see how the results change for highly connected users compared to isolated ones.
+[1] Chen, Tianlang, Charilaos Kanatsoulis, and Jure Leskovec. "Relgnn: Composite message passing for relational deep learning." arXiv preprint arXiv:2502.06784 (2025).
+[2] Dwivedi, Vijay Prakash, et al. "Relational graph transformer." arXiv preprint arXiv:2505.10960 (2025).
+[3] Robinson, Joshua, et al. "Relbench: A benchmark for deep learning on relational databases." Advances in Neural Information Processing Systems 37 (2024): 21330-21341.
+
+Limitations:
+Yes
+
+Rating: 2: Reject: For instance, a paper with technical flaws, weak evaluation, inadequate reproducibility and incompletely addressed ethical considerations.
+Confidence: 4: You are confident in your assessment, but not absolutely certain. It is unlikely, but not impossible, that you did not understand some parts of the submission or that you are unfamiliar with some pieces of related work.
+Ethical Concerns: NO or VERY MINOR ethics concerns only
+Paper Formatting Concerns:
+No
+
+Code Of Conduct Acknowledgement: Yes
+Responsible Reviewing Acknowledgement: Yes
+Add:
+Official Review of Submission25120 by Reviewer Jz3M
+Official Reviewby Reviewer Jz3M25 Jun 2026, 12:51 (modified: 23 Jul 2026, 12:07)Program Chairs, Senior Area Chairs, Area Chairs, Reviewers Submitted, Authors, Reviewer Jz3MRevisions
+Summary:
+The paper identifies an important problem in modelling user behaviour for industrial applications. The existing works primarily deal with this problem in two ways: either as a sequence or as a graph problem. In this work, the authors have gone beyond this paradigm. They incorporated both approaches by proposing BRIDGE, which tackles the sequential user behaviour along with defining it as a static user-to-user graph construction. The authors consider the static user-user graph rather than involving temporal characteristics. The efficacy of the method is also established on two tasks: relationship prediction and fraud detection.
+
+Contribution Type: General: Most submissions will fall into this type.
+Strengths And Weaknesses:
+Strengths:
+
+The problem is genuinely relevant and important in the context of industrial application.
+The limitations of the existing works are tactfully presented. The motivation for the work is also clear.
+The experimental section is stronger than the proposed methodology. The section is enriched with various analyses.
+Weaknesses:
+
+Section 3 (Approach) is very weak, and it just contains one thematic figure that barely clarifies the approach taken to model user behaviour. The description of the BRIDGE lacks intricate details.
+The details on how the hidden layers look should be mentioned. What are the components are employed should be clearly discussed.
+The information flow should be shown with the mathematical equations, not just with the verbosity.
+The process of the graph construction and node features assigment are not discussed.
+Table 1 should be in the Experiment section, not in the Approach section.
+The construction of Knowledge Graphs also helps to understand the user behavioural patterns. Authors should include a discussion of how their work differs from those KG-based approaches.
+As per my assessment, the paper is not ready to publish in its current form. Requires a major revision to address the concerns.
+
+Quality: 2: not good
+Clarity: 3: good
+Significance: 2: not good
+Originality: 2: not good
+Questions:
+See the weaknesses.
+
+Limitations:
+Limitations are discussed in the Appendix.
+
+Rating: 3: Borderline reject: Technically solid paper where reasons to reject, e.g., limited evaluation, outweigh reasons to accept, e.g., good evaluation. Please use sparingly.
+Confidence: 5: You are absolutely certain about your assessment. You are very familiar with the related work and checked the math/other details carefully.
+Ethical Concerns: NO or VERY MINOR ethics concerns only
+Paper Formatting Concerns:
+No such formatting concersn are there.
+
+Code Of Conduct Acknowledgement: Yes
+Responsible Reviewing Acknowledgement: Yes
+Add:
+Official Review of Submission25120 by Reviewer zrKC
+Official Reviewby Reviewer zrKC06 Jun 2026, 16:46 (modified: 23 Jul 2026, 12:07)Program Chairs, Senior Area Chairs, Area Chairs, Reviewers Submitted, Authors, Reviewer zrKCRevisions
+Summary:
+This paper studies user behavior modeling in settings where each user is associated with both a sequence of events and a static user-user relation graph. The authors argue that existing approaches typically focus on either sequential modeling or graph modeling, overlooking complementary information from the other. To address this, they propose BRIDGE, an end-to-end architecture that first encodes user event sequences using a Transformer, and then propagates information through a GNN on the user-user relation graph. Experiments on relationship prediction and fraud detection show that jointly training the sequence and graph generally outperforms existing frameworks.
+
+Contribution Type: Use-inspired: The main contribution is in framing or designing approaches to meet the needs of a specific real-world application. (This often involves, e.g., engaging with domain experts.)
+Strengths And Weaknesses:
+Quality
+Strengths:
+The proposed framework is technically sound and straightforward to implement.
+The paper evaluates BRIDGE on multiple datasets, tasks, and graph backbones.
+The empirical results consistently show improvements over variants.
+Weaknesses:
+The paper primarily demonstrates empirical effectiveness rather than providing deeper insights into why the proposed formulation is better. For example, the paper empirically shows that end-to-end optimization is effective, but provides little understanding of why it works better than two-stage alternatives.
+The paper provides limited discussion of the trade-off between performance gains and scalability of end-to-end optimization compared to two-stage approaches.
+Clarity
+Strengths:
+The paper is clearly written and well organized. The motivation, problem formulation, model architecture, and experiments are easy to follow.
+Implementation details are suffiently described to reproduce the method.
+Weaknesses:
+The distinction between the proposed formulation and existing sequence-graph integration approaches could be explained more explicitly.
+Significance
+Strengths:
+The paper addresses a practically important setting in recommendation, fraud detection, and social networks.
+The proposed formulation is simple and straightforward, so it may be useful for many researchers to easily adopt it.
+Weaknesses:
+The paper provides limited new understanding of sequence or graph learning beyond demonstrating the effectiveness of combining the two.
+Originality
+Strengths:
+The paper presents a clear formulation that combines user event sequences with static user-user relations.
+Weaknesses:
+The proposed architecture largely follows a standard sequence encoder 
+ graph encoder pipeline.
+Some prior work that combines sequence encoders and GNNs are not discussed
+Sequential Recommendation through Graph Neural Networks and Transformer Encoder with Degree Encoding (2021)
+GN-Transformer: Fusing Sequence and Graph Representation for Improved Code Summarization (2021)
+DynGraph-BERT: Combining BERT and GNN Using Dynamic Graphs for Inductive Semi-Supervised Text Classification (2025)
+Sequential Recommendation with Dual Side Neighbor-based Collaborative Relation Modeling (2020)
+The main novelty appears to come from the problem formulation and empirical evaluation rather than from a fundamentally new modeling architecture.
+Quality: 2: not good
+Clarity: 3: good
+Significance: 3: good
+Originality: 2: not good
+Questions:
+Why does end-to-end optimization work better than two-stage training? While the paper shows that BRIDGE outperforms frozen two-stage baselines, it provides limited insight into why this improvement occurs. Could the authors provide additional analysis or qualitative discussion that helps explain why end-to-end optimization is beneficial?
+Could the authors provide more analysis on the scalability trade-off of end-to-end training? While end-to-end optimization can yield better performance, its scalability is expected be worse than two-stage baselines.
+Could the authors discuss how the architecture of BRIDGE fundamentally differs from prior sequence + graph architectures?
+Limitations:
+Yes
+
+Rating: 3: Borderline reject: Technically solid paper where reasons to reject, e.g., limited evaluation, outweigh reasons to accept, e.g., good evaluation. Please use sparingly.
+Confidence: 4: You are confident in your assessment, but not absolutely certain. It is unlikely, but not impossible, that you did not understand some parts of the submission or that you are unfamiliar with some pieces of related work.
+Ethical Concerns: NO or VERY MINOR ethics concerns only
+Paper Formatting Concerns:
+N/A
+
+Code Of Conduct Acknowledgement: Yes
+Responsible Reviewing Acknowledgement: Yes
+Add:
+LLM Feedback by Program Chairs
+LLM Feedbackby Program Chairs07 May 2026, 10:12Conference, Authors
+Feedback:
+Dear Author,
+
+We hope you found the PAT automated pre-submission feedback helpful for your NeurIPS 2026 submission.
+
+We are currently gathering feedback to gauge the quality and usefulness of the PAT Program. Could you spare a few minutes to share your experience in the link below? Your insights will directly help us improve the tool's accuracy and utility for future authors.
+
+https://docs.google.com/forms/d/e/1FAIpQLSfkkPCth8reUIUNubfiEjyoNLBm3lweHItoYWFYyQAk344Fww/viewform?usp=pp_url&entry.1908739883=G7qaCxwGBv&entry.1717434670=MID&entry.445444243=19&pageHistory=0,1
+
+Thank you for your time, Paper Assistant Tool (PAT) Team
+
+LLM Feedback by Program Chairs
+LLM Feedbackby Program Chairs04 May 2026, 22:07Conference, Authors
+Feedback:
+Hello!
+
+You requested a review of your paper submitted to NeurIPS using the Google Paper Assistant Tool (PAT). The resulting AI Feedback can be found below. Note that this feedback is posted automatically, and is only visible to authors. Importantly, the feedback will not be used in the review process. Reviewers, area chairs, and program committee members will not have access to the PAT feedback.
+
+Disclaimer: Please note that the models used by the PAT pipeline are not infallible; they may hallucinate and make mistakes. Authors should treat the generated feedback with the same critical eye they would apply to a human review.
+
+Summary
+The paper proposes BRIDGE, an end-to-end framework designed to jointly model user behavior by integrating sequential event data (via Transformers) and static relational data (via Graph Neural Networks). To overcome the loss of temporal granularity associated with pooling sequences into static node embeddings, the authors introduce TOKENXATTN, a novel token-level cross-attention mechanism. This layer enables fine-grained, event-to-event message passing between neighboring sequences across the graph topology. The authors evaluate their framework on relationship prediction and fraud detection tasks, demonstrating performance improvements over static GNNs, temporal graph models, and two-stage sequence-graph baselines.
+
+Strengths
+The paper addresses a highly significant and ubiquitous problem: effectively jointly modeling sequential personal events and static relational graphs for user behavior modeling, which has broad applications in e-commerce, fraud detection, and social media.
+
+The proposed TOKENXATTN mechanism introduces a highly novel architectural contribution. By allowing direct cross-attention between uncompressed sequences of neighboring nodes during message passing, the model elegantly preserves temporal fidelity and avoids the signal dilution common in standard GNNs.
+
+The framework demonstrates robust empirical performance gains over a wide range of baselines, effectively addressing a major operational bottleneck in industrial settings where practitioners frequently rely on sub-optimal two-stage decoupled pipelines.
+
+Weaknesses
+The conceptual claim that end-to-end joint training of sequence and graph modalities outperforms decoupled two-stage pipelines is already established in the literature. The authors might consider better contextualizing their empirical gains against prior works that have successfully unified sequential patterns with GNNs (Reference Paper: Sequence-Graph Duality: Unifying User Modeling with Self-Attention for Sequential Recommendation, 2022) (Reference Paper: End-to-End Graph-Sequential Representation Learning for Accurate Recommendations, 2024) (Reference Paper: Set-Sequence-Graph: A Multi-View Approach Towards Exploiting Reviews for Recommendation, 2021).
+
+The relationship prediction task on the Amazon datasets appears to suffer from target leakage. The ground-truth graph is constructed by connecting users who co-reviewed at least three products, while the input sequences explicitly include product IDs. This allows sequence-aware models to deterministically predict edges simply by comparing input sequences, rendering comparisons against graph-only models (which lack sequence access) unfair. Please consider reformulating the input features or the target definition to prevent this leakage.
+
+The paper claims improvements over 'strictly sequence-only' methods, but no supervised sequence-only baseline is evaluated for the relationship prediction task. Furthermore, the Two-Stage baselines use frozen sequence embeddings pre-trained via an unsupervised objective, whereas BRIDGE optimizes the sequence encoder end-to-end with a supervised objective. This conflates the architectural benefit of joint modeling with the advantages of supervised representation learning. Including a baseline with a supervised sequence model (without graph components) would better isolate the contribution.
+
+To adapt static relationship edges for temporal graph baselines, the experimental setup assigns random timestamps within the users' event timelines. Injecting random temporal noise disrupts the ordering and causality these architectures rely on, artificially weakening these baselines. The authors might want to acknowledge this limitation explicitly or explore fairer adaptation strategies.
+
+There is a lack of feature parity in the Fraud Detection baselines. BRIDGE and Temporal Graph models receive a 'learnable rating embedding', but the descriptions for the 'Text Embedding Model' and 'Static Graph + Text Embedding' baselines do not mention the inclusion of user ratings. Denying this highly correlated feature to certain baselines confounds the evaluation.
+
+For the Fraud Detection task, the paper reports 'Max F1' by finding the best F1 metric across thresholds. If this threshold tuning is performed directly on the test set, it constitutes data leakage and yields overly optimistic performance estimates. The classification threshold should be calibrated on a separate validation set and then applied fixedly to the test set.
+
+The TOKENXATTN mechanism scales quadratically with sequence length, but the specific sequence lengths and truncation strategies employed in the experiments are not explicitly reported. If sequences were heavily truncated to fit into GPU memory, this could explain why a very small compression length (Lc=4) was found to be sufficient in the BRIDGE-GCN ablations. Please clarify the sequence length configurations.
+
+There are mathematical and descriptive inconsistencies in the algorithms. Algorithm 1 compresses sequence representations before message passing, which contradicts the TOKENXATTN architecture described in Section 4.2 that operates on uncompressed sequences. Additionally, Algorithm 2 contains a redundant scaling factor for mean aggregation, leading to an unintended double-normalization of 1/|N(i)|^2. Please revise the pseudocode to match the text descriptions.
+
+The NeurIPS Paper Checklist is completely blank (left as [TODO]). As per the conference guidelines, papers not including the checklist will be desk rejected. The authors must complete the checklist and provide appropriate justifications.
+
+Potential Issues And Suggestions
+[Introduction and Background] (Pages: 1-4, 16-17)
+1. Potential Mistakes and Improvements:
+
+Alignment on "Timestamped" Sequences: The introduction motivates the problem space by stating that each entity generates a "timestamped event sequence" (line 19). However, Definition 3.1 formalizes 
+ strictly as an ordered list of events without explicit time intervals or absolute timestamp attributes. The limitations section (Appendix E.1) confirms that the model preserves event order but does not encode absolute timestamps. Because the paper explicitly contrasts its approach with temporal graphs (which utilize explicit timestamps, as noted on line 39), it could be beneficial to clarify early in the problem setup that the proposed formulation focuses specifically on the sequential ordering of events rather than their continuous-time properties.
+
+Scope of Relational Modeling vs. Prior Work: The introduction and related works discuss temporal graph models and their focus on "evolving interactions" (lines 62–64). However, Definition 3.1 explicitly simplifies the scope to consider "only a single, static, non-timestamped relation type." While this is a valid scoping choice, the introduction could more explicitly state that the framework integrates dynamic, node-level event sequences specifically with static relational graphs, which would help align reader expectations with the problem definition and subsequent experimental setup.
+
+2. Minor Corrections and Typos:
+
+Entity Notation Consistency: In Section 2 (Related Works), the set of entities is denoted as 
+ (line 89). In Section 3 (Definition 3.1), the set of entities/nodes is defined as 
+ (line 119). Unifying this notation across sections would improve readability.
+
+Graph Notation Consistency: The graph is denoted with a calligraphic 
+ in Section 2 (lines 94, 96, 105), but with a standard 
+ in Section 3 (line 121).
+
+Tuple vs. Set Notation: In line 105, the static graph is defined using set brackets as 
+. This should likely be a tuple 
+ to be mathematically consistent with the standard notation used earlier in line 94 and later in line 121.
+
+[Methodology and Algorithms] (Pages: 3-6, 17-18)
+Potential Mistakes and Improvements
+Inconsistency Between Algorithm 1 and the TOKENXATTN Architecture: Algorithm 1 defines the generalized BRIDGE framework but structures the sequence compression such that it only aligns with the vector-based graph variants (e.g., BRIDGE-GCN, BRIDGE-GAT). Specifically, the Compress function is applied to the sequence representation 
+ before the graph message-passing layers (Algorithm 1, Line 11), passing vector representations 
+ into the message-passing loop. However, Section 4.2 explicitly states that TOKENXATTN "operates directly on 
+" (Line 164) and maintains the uncompressed sequence representation 
+ during message passing, deferring compression until before the final prediction head (Section 6, Line 343). Modifying Algorithm 1 to account for this bimodal data flow (or providing a dedicated algorithm for TOKENXATTN's operations) would improve process clarity and reproducibility.
+
+Redundant Scaling / Double-Normalization Risk in Algorithm 2: There is a mathematical contradiction between how mean aggregation is described in the text and how it is implemented in Algorithm 2. Section 4.2 (Lines 189–191) states that "mean aggregation sets 
+ 
+". However, Algorithm 2 includes an else block for fagg = mean (Line 11) that explicitly multiplies the summation by 
+ 
+ while still applying the 
+ term. If a practitioner follows the text and provides 
+ 
+ while also setting 
+, the algorithm will double-normalize the messages, yielding an unintended effective scale of 
+ 
+. Reconciling the behavior of 
+ in the pseudocode with the definition of 
+ would prevent this implementation error.
+
+Ambiguity Regarding Self-Loops in Cross-Attention: It is not explicitly stated whether the neighborhood set 
+ used in Section 4.2 (Line 184) and Algorithm 2 includes the central target node 
+ (i.e., self-loops). If 
+ does not include 
+, the intermediate output representation 
+ is composed entirely of neighbor messages, meaning the central node's own sequential state from the Transformer is not propagated forward at each TOKENXATTN layer (prior to the final global residual connection). Clarifying whether self-loops are employed during the token-level message passing would strengthen the description of the architecture's local temporal signal preservation.
+
+Minor Corrections and Typos
+Softmax Reduction Axis: In Section 4.2 (Line 184) and Algorithm 2 (Line 5), the attention matrix is computed as 
+. Explicitly defining that the reduction axis of the softmax operates over the last dimension (the neighbor's sequence dimension 
+) would remove any minor ambiguity for reimplementation.
+
+Multi-Head Notation: Section 4.2 mentions computing the message "in each head" (Line 185). Algorithm 2 illustrates the operations for a single head. A brief note indicating that multiple heads are concatenated and linearly projected (as is standard in attention mechanisms) would ensure the pseudocode fully covers the multi-head formulation.
+
+[Experiments and Ablations] (Pages: 6-11, 17-23)
+1. Potential Mistakes and Improvements
+Target Leakage in Amazon Relationship Prediction (Validity & Fairness): In Section 5.1, the ground-truth relationship graph for the Amazon datasets is constructed by connecting users who "have co-reviewed at least three products" (Lines 209–210). At the same time, the input sequences provided to the models consist of the users' "product IDs and ratings" (Line 208). Because the target prediction label (the existence of an edge) is a deterministic function of the input features (the intersection of two users' product IDs being 
+), this formulation represents severe data leakage. Sequence-aware models (BRIDGE and Two-Stage) can theoretically perfectly predict edges simply by comparing input sequences, rendering comparisons against Graph-Only models (which are denied access to the sequences) unfair.
+
+Confounded Attribution and Missing Sequence-Only Baseline (Ablation & Attribution): The abstract asserts that the unified approach improves upon "strictly sequence-only" methods (Line 16). However, there is no purely supervised sequence-only baseline evaluated for Relationship Prediction. Furthermore, the Two-Stage baselines use sequence embeddings pre-trained via an unsupervised masked token prediction objective and kept frozen (Lines 228–230), whereas BRIDGE optimizes the sequence encoder end-to-end using a supervised objective driven by the target task (Lines 233–234). The resulting performance gap conflates the architectural benefit of joint sequence-graph modeling with the advantages of supervised versus unsupervised representation learning. To properly isolate the contribution, a baseline with a supervised sequence model (without graph components) should be included.
+
+Artificially Weakened Temporal Graph Baselines (Validity): To evaluate temporal graph baselines on static relationship edges, the experimental setup assigns these edges "random timestamps within the users' event timelines" (Lines 224–225). Injecting random timestamps disrupts the temporal ordering and causality that these architectures explicitly rely on to model dynamics. Evaluating these methods on artificially randomized timelines rather than adapting the task in a way that respects their inductive biases heavily disadvantages the temporal baselines.
+
+Feature Parity in Fraud Detection Baselines (Confounding Variables): In the Fraud Detection setup, "Temporal Graph Models" and "BRIDGE" are provided with a "learnable rating embedding" in addition to text embeddings (Lines 300, 305–306). However, the descriptions of the "Text Embedding Model" and "Static Graph + Text Embedding" baselines (Lines 287–293) do not mention the inclusion of user ratings. Since ratings are highly correlated with fraud, denying this feature to certain baselines confounds the evaluation and makes it unclear whether BRIDGE's performance gain is due to its architecture or the addition of the rating features.
+
+Hyperparameter Fairness and Compute Parity (Fairness): There are significant discrepancies in optimization hyperparameters that could impact the results. For Relationship Prediction, Tables 4 and 5 show static and Two-Stage baselines using a learning rate of 0.001 and a batch size of 4096, while BRIDGE variants (Table 7) use a learning rate of 0.0001 and much smaller batch sizes of 32 or 128. For Fraud Detection, Table 9 reports an extremely large batch size of 32,768 for Temporal Graph baselines like TGN and DyRep. Since memory-based continuous-time GNNs rely on sequential memory state updates between mini-batches, such a large batch size processes a massive number of events concurrently without memory updates, potentially severely degrading their performance.
+
+Missing Data Split Details (Clarity): The experimental setup does not detail the dataset splitting strategy (e.g., random edge split, user-based split, or chronological sequence split) or the exact train/validation/test ratios for either task. Additionally, for the relationship prediction task, it is not explicitly stated whether the validation and test target edges are masked from the input graph during the message-passing phase to prevent 1-hop data leakage.
+
+Test-Set Optimization via "Max F1" (Validity): For the Fraud Detection task, the paper reports "Max F1," defined as "the best F1 metric across thresholds" (Lines 310–311). Calculating the F1 score by actively searching for the optimal classification threshold directly on the test set is a form of data leakage that yields overly optimistic performance estimates. The threshold should be calibrated on a separate validation set and then applied fixedly to the test set.
+
+Missing Details for Sequence Compression Ablation (Clarity): Section 6 (Lines 345–346) describes producing "
+ pooled vectors and concatenat[ing] them" to create a compressed representation. The methodology for mapping a sequence of arbitrary length 
+ into exactly 
+ pooled vectors (e.g., segmenting the sequence into 
+ contiguous chunks and mean-pooling each, or using attention queries) is not explained. Given that 
+ is the default operating point, explicitly defining this pooling function is important for reproducibility.
+
+Missing Initial Node Features for Static Graph Baselines (Clarity): For Relationship Prediction, it is not specified what initial node features are provided to the "Graph Only (Static)" baselines. Because these baselines are explicitly denied sequence embeddings (Line 215), stating what features they use (e.g., random normal embeddings, structural features, or one-hot vectors) is necessary to interpret and reproduce their results.
+
+2. Minor Corrections and Typos
+Algorithm 1 vs. TokenXAttn Architecture Contradiction: Section 4.2 states that the TOKENXATTN variant "operates directly on 
+" (Line 164) to preserve uncompressed event-level sequences during message passing. However, Algorithm 1 (Lines 11 and 15) indicates that the sequence representations are compressed into 
+ before entering the graph message-passing loop, which contradicts the described forward pass of the TOKENXATTN architecture.
+
+Redundant Normalization in Algorithm 2: Line 191 defines the edge weight for mean aggregation as 
+. However, in Algorithm 2 (Line 11), the else branch for mean aggregation explicitly normalizes the sum by 
+ again. Applying both results in an incorrect double scaling factor of 
+.
+
+Inconsistencies in Sequence Depth Ablation Defaults: The paper presents conflicting information regarding the default Transformer sequence depth. The main text (Line 357) states that a "1 layer transformer encoder" is the default. However, Figure 4's caption states the default is "depth= 2", and Table 14 normalizes the relative epoch time such that the 2-layer setting is 1.00 (while the 1-layer setting is 0.96), which contradicts its own caption. Table 10 also lists TF-L = 2 across BRIDGE models for Fraud Detection.
+
+Missing Definition of "Unhelpful" Reviews: For fraud detection, users are labeled fraudulent if "more than 70% of their reviews are marked unhelpful" (Line 279). The paper lacks the exact threshold defining what constitutes an "unhelpful" review (e.g., the specific ratio of helpful to total votes) needed to independently recreate the labels from the raw Amazon dataset.
+
+Table 10 Nomenclature: The naming convention used for BRIDGE variants in Table 10 (e.g., GAT+GAT, GCN+GCN, TokenXAttn+GAT) differs from the main text (BRIDGE-GAT, BRIDGE-GCN), which makes mapping the hyperparameters to the main results unnecessarily ambiguous.
+
+Missing Hyperparameters for TNCN: The TNCN model is evaluated in Tables 2 and 11, but its hyperparameters are absent from the corresponding baseline configuration tables in the appendix (Tables 6 and 9).
+
+Duplicate Table Numbers: There are three distinct tables sequentially labeled "Table 11" spanning pages 20 and 21. They should be uniquely numbered (e.g., Tables 11, 12, 13) or formatted as sub-tables (11a, 11b, 11c).
+
+Tables 2 and 11 Formatting Errors: Several rows lack spacing between adjacent columns' mean and standard deviation values, causing text to run together illegibly (e.g., in Table 2, BRIDGE-GCN on Gowalla reads 87.9±0.293.3±0.190.4±0.497.6±0.280.2±0.287.1±0.1).
+
+Typographical Error: On page 10, line 345, there is a missing space after the period in "
+.Concretely".
+
+[Conclusion, References, and Limitations] (Pages: 11-15, 21-23)
+1. Potential Mistakes and Improvements
+Unsupported claim regarding sequence-only baselines: In the Conclusion (lines 362–363), the paper states that BRIDGE "consistently outperforms static GNNs, temporal graph models, and sequence-only baselines across relationship prediction and fraud detection." However, based on the methodology and Table 2, no purely sequence-only baseline was evaluated for the relationship prediction task. A sequence-only baseline (Sentence-BERT) was only included for the fraud detection task (Table 3). The concluding claim should be revised to accurately reflect that sequence-only baselines were solely evaluated for fraud detection.
+
+Contextual limitation of temporal graph comparisons: The Conclusion highlights that the proposed method outperforms temporal graph models, but Appendix E (Limitations and Discussion) misses an opportunity to acknowledge a critical experimental constraint regarding this comparison. As described in Section 5.1 (lines 224–225 and 271–273), the relationship edges in the datasets are naturally static, forcing the authors to assign random timestamps to these edges to satisfy the temporal baselines' input requirements. Introducing randomized temporal noise into structural edges inherently disadvantages temporal models. Explicitly acknowledging this in the Limitations section would provide necessary context for interpreting the poor performance of these baselines and clarify the empirical boundaries of the claims.
+
+Notation inconsistencies in Appendix E.2:
+
+On line 715, the text states, "The Transformer encoder is applied independently per node to obtain 
+. In BRIDGE-GCN... 
+ is compressed to a single vector...". Based on the established notation in Section 4.1, 
+ refers to the input sequence of token embeddings, while the sequential representation produced by the Transformer encoder is denoted as 
+. The text should refer to obtaining and compressing 
+.
+On line 730, the complexity analysis states that BRIDGE-GCN performs message passing on "
+-dimensional vectors," yielding a graph phase overhead of 
+. However, Section 6 (Line 346) defines the dimension of the compressed sequence embedding as 
+. Using 
+ instead of 
+ in this section would make the complexity expression strictly consistent with the prior notation, yielding 
+.
+2. Minor Corrections and Typos
+Incomplete References: Several bibliography entries are missing the publication venue (e.g., conference name, journal, or explicit preprint server identifier):
+
+Line 433 (Shui et al., "Sequence-graph duality: Unifying user modeling...")
+Line 466 (Wang et al., "Tcl: Transformer-based dynamic graph modelling...")
+Line 498 (Bubeck et al., "Sparks of artificial general intelligence...")
+Line 506 (Kipf and Welling, "Variational graph auto-encoders")
+Line 537 (Hafez et al., "Convdysat: Deep neural representation learning...")
+Typographical Errors in References:
+
+Line 471: "Tgb 2.0" should be "TGB 2.0".
+Line 485: "Sentence-bert" should be "Sentence-BERT".
+Line 520: "Selfgnn" should be "SelfGNN".
+Line 523: The word "sequel-aware" in the title is highly likely a typo for "sequence-aware".
+Line 534: "Mst-gat" should be "MST-GAT".
+Line 547: There is a missing space and an uncapitalized acronym in the string "(llms)in learning". It should be updated to "(LLMs) in learning".
+Lines 549, 554, 572, 576: The acronym "LLMs" appears uncapitalized ("llms") in several reference titles, likely due to standard BibTeX downcasing. Consider wrapping acronyms in curly braces in the .bib file to preserve their capitalization.
+[Paper Checklist] (Pages: 24-30)
+Potential Mistakes and Improvements:
+
+Incomplete Paper Checklist: The NeurIPS Paper Checklist (Pages 24–30) has not been filled out. All 16 questions currently retain the default placeholder text Answer: [TODO] and Justification: [TODO]. The instructions on line 738 state that "The papers not including the checklist will be desk rejected." The authors must update the checklist with appropriate answers (e.g., [Yes], [No], [N/A]) and provide the corresponding justifications for each item to comply with conference requirements.
+
+Retained Instruction Block: The introductory instruction block for the checklist (lines 736–763) has not been removed. Line 761 explicitly instructs authors to: "Delete this instruction block, but keep the section heading 'NeurIPS Paper Checklist'."
+
+Minor Corrections and Typos:
+
+None.
+LLM Feedback by Program Chairs
+LLM Feedbackby Program Chairs04 May 2026, 21:47Conference, Authors
+Feedback:
+Hello!
+
+You requested feedback on your paper submitted to NeurIPS using the Google Paper Assistant Tool (PAT).
+We received your paper and are currently processing it. We will post the feedback here once it is ready.
+
+If you have not received feedback within 24 hours, please contact us at paper-assistant@google.com.
