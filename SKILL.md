@@ -321,6 +321,9 @@ Also label the likely response mode:
 - `EXISTING_EVIDENCE`
 - `CLARIFICATION`
 - `CORRECTION`
+- `CONTESTED_CLAIM` — the reviewer's premise is checked against the manuscript
+  or evidence and found unfounded; respond with Holding Ground Respectfully
+  rather than a concession.
 - `CLAIM_NARROWING`
 - `MANUSCRIPT_REVISION`
 - `CONFIDENTIAL_CHAIR_NOTE`
@@ -636,7 +639,16 @@ Mark each concern:
 - `UNRESOLVED`
 - `RESOLVED_BY_CLARIFICATION`
 - `CONCEDED_AND_NARROWED`
+- `CONTESTED_WITH_EVIDENCE` — the manuscript, supplied evidence, or a completed
+  analysis contradicts the reviewer's claim; the authors decline to concede and
+  explain why, respectfully and with a pointer to the specific evidence.
 - `DEFERRED_TO_RESUBMISSION`
+
+Do not default to `CONCEDED_AND_NARROWED` or `RESOLVED_BY_CLARIFICATION` for a
+concern before checking whether the manuscript or evidence actually supports the
+reviewer's premise. Concession is a conclusion reached after checking the
+evidence, not a default posture adopted to appear cooperative. See
+[Holding Ground Respectfully](#holding-ground-respectfully).
 
 ## 2.3 Decide what enters the rebuttal
 
@@ -702,6 +714,19 @@ Strong:
 > our method obtains `[X]` versus `[Y]` for Baseline A using the same data,
 > backbone, tuning budget, and FLOPs. We will add the result to Table `[N]` and
 > clarify the comparison protocol.
+
+A direct answer is not always agreement. When the manuscript or evidence
+contradicts the reviewer's premise, lead with the correction just as directly:
+
+> **No — the submitted method does not assume `[X]`.** Section `[N]` defines the
+> assumption as `[actual assumption]`, and Table `[M]` already reports the
+> requested setting. We do not believe this concern applies to the submitted
+> version; if the reviewer had a different setting in mind, we would welcome the
+> clarification.
+
+Do not soften a direct correction into a hedge ("we believe," "it seems," "we
+would argue") when the manuscript text or evidence settles the question. Hedging
+a settled fact reads as evasive, not polite.
 
 ## 2A.3 Organize by decision-critical concern
 
@@ -774,10 +799,67 @@ Group compactly:
 
 ## Correcting a misunderstanding
 
+First check whether the manuscript actually states the point clearly. The
+response differs depending on the answer — do not reach for self-blame by
+default.
+
+**When the presentation genuinely could be clearer:**
+
 > **The method does not require `[assumption]`; it requires only
 > `[actual assumption]`.** This is stated in Section `[N]`, but our presentation
 > may have obscured the distinction. We will revise the paragraph and add
 > `[example or derivation]`.
+
+**When the manuscript already states the point plainly and the reviewer's
+comment reflects a misreading, not an unclear paper:**
+
+> **The method does not require `[assumption]`; it requires only
+> `[actual assumption]`, as stated explicitly in Section `[N]`, line
+> `[location]`.** No revision is needed on this point; we are happy to expand
+> the passage further if it would help.
+
+Only claim the second form when the manuscript location is verified and
+genuinely unambiguous. When uncertain which form applies, use the first —
+but do not use the first as a reflex to avoid ever telling a reviewer they
+missed something the paper already says.
+
+## Holding Ground Respectfully
+
+Use this pattern when, after checking the manuscript and evidence, the
+reviewer's stated concern does not hold — a misreading, a claim the paper never
+makes, an assumption not present in the method, or a request already satisfied
+by existing content. Do not convert a checked-and-unfounded concern into a
+concession, a claim narrowing, or a new experiment merely to appear responsive.
+
+Structure:
+
+1. **Direct, unhedged answer** stating the actual position.
+2. **Evidence**: the exact manuscript location, quotation, or result that
+   settles the question.
+3. **An open door**: invite the reviewer to point to the specific passage that
+   drove their reading, in case the disagreement is about a different part of
+   the paper than the authors assume.
+
+Template:
+
+> **We respectfully disagree that `[claim]`.** `[Manuscript location / result]`
+> shows `[actual fact]`, which is inconsistent with `[the reviewer's premise]`.
+> If the reviewer was referring to a different passage or setting, we would
+> welcome the pointer so we can address it precisely.
+
+Example:
+
+> **We respectfully disagree that the comparison is unfair.** Table 2 already
+> reports all methods under an identical compute and tuning budget (Appendix B,
+> Table B.1); the reviewer's estimate of Baseline A's budget does not match the
+> logged configuration we release. If the reviewer has a specific discrepancy in
+> mind, we would welcome the detail so we can verify it.
+
+This is not the same as dismissing a reviewer. It is reserved for concerns the
+authors have actually checked against the manuscript or evidence and found
+unfounded — never for concerns that are merely inconvenient, under-evidenced on
+the author's side, or simply unwelcome. If checking the evidence leaves any
+doubt, use claim narrowing or clarification instead, not this pattern.
 
 ## Acknowledging a valid limitation
 
@@ -972,7 +1054,10 @@ Never:
 - conceal a negative added result;
 - state reviewer intent as certain when it is ambiguous;
 - promise that a future experiment will succeed;
-- recommend a rushed experiment without interpretable controls.
+- recommend a rushed experiment without interpretable controls;
+- concede a claim, narrow a claim, or promise a revision the manuscript and
+  evidence do not actually call for, merely to appear cooperative or to avoid
+  friction with the reviewer.
 
 When uncertain, say so and provide the safest next action.
 
@@ -980,7 +1065,7 @@ When uncertain, say so and provide the safest next action.
 
 # Tone Rules
 
-Prefer:
+When the evidence supports the reviewer, prefer:
 
 - “We agree...”
 - “We clarify...”
@@ -990,6 +1075,19 @@ Prefer:
 - “We will narrow...”
 - “We will revise...”
 
+When the evidence supports the authors instead, hold the position in the same
+calm register — firm phrasing is not the same as hostile phrasing:
+
+- “We respectfully disagree, because...”
+- “The manuscript already specifies `[X]` in `[location]`...”
+- “This does not match the submitted method, which...”
+- “We do not believe this concern applies to the evaluated setting, because...”
+- “The requested control is already reported in `[location]`...”
+
+These are corrections of fact, addressed to a neutral chair, not accusations
+against the reviewer. State the fact and its location; do not add commentary
+about why the reviewer reached the wrong conclusion.
+
 Avoid:
 
 - “The reviewer failed to understand...”
@@ -998,9 +1096,15 @@ Avoid:
 - “This criticism is unfair.”
 - speculation about reviewer motives;
 - aggressive requests for score changes;
-- repeated ceremonial thanks.
+- repeated ceremonial thanks;
+- hedging a settled fact out of politeness (“we believe,” “it seems,” “perhaps”)
+  when the manuscript or evidence has already resolved the question — this reads
+  as evasive rather than respectful, and leaves the chair unable to tell whether
+  the authors actually checked.
 
-A rebuttal should feel calm, precise, and easy for a neutral chair to audit.
+A rebuttal should feel calm, precise, and easy for a neutral chair to audit —
+whether it is conceding a point or holding one. Politeness is in the register,
+not in always agreeing.
 
 ---
 
@@ -1175,9 +1279,17 @@ When reviews, scores, and abstract are supplied:
 - [ ] Added results include matched conditions and uncertainty where relevant.
 - [ ] Valid limitations are acknowledged.
 - [ ] Claims are narrowed when the evidence is insufficient.
+- [ ] Every concession, narrowing, or promised revision was checked against the
+      manuscript/evidence first, not adopted by reflex.
+- [ ] Every concern where the manuscript or evidence actually contradicts the
+      reviewer is held, not conceded — using the Holding Ground Respectfully
+      pattern, with an exact location or result cited.
+- [ ] No checked, unambiguous correction is hedged into "we believe" or "it
+      seems" language.
 - [ ] Revisions are concrete.
 - [ ] The response is self-contained.
-- [ ] The tone is professional and non-combative.
+- [ ] The tone is professional and non-combative — including the responses that
+      hold ground.
 - [ ] The response fits the venue limit.
 
 ## Integrity
@@ -1207,6 +1319,12 @@ Do not:
 - treat all criticism as misunderstanding;
 - attack reviewer competence;
 - overclaim from a single rushed result;
+- treat every criticism as valid without first checking whether the manuscript
+  or existing evidence already refutes it;
+- concede or narrow a claim as a reflex to seem responsive, rather than as a
+  conclusion reached by checking the evidence;
+- soften a checked, unambiguous correction into a hedge to avoid the discomfort
+  of disagreeing with a reviewer;
 - spend the entire rebuttal period when all reviews are clearly below borderline
   and the paper needs a substantial revision;
 - give up entirely in a low-return case when a concise correction of material
