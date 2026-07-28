@@ -1,0 +1,539 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>CausalMix Rebuttal Responses</title>
+<style>
+  @page { size: Letter; margin: 0.72in; }
+  body {
+    color: #202124;
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 10.5pt;
+    line-height: 1.30;
+    margin: 0 auto;
+    max-width: 8.1in;
+  }
+  h1.reviewer {
+    color: #17365d;
+    font-size: 19pt;
+    font-weight: 700;
+    margin: 0 0 12pt 0;
+    padding-bottom: 5pt;
+    border-bottom: 1.5pt solid #5b9bd5;
+  }
+  h1.page-break { page-break-before: always; }
+  h2 {
+    color: #1f4e79;
+    font-size: 13pt;
+    font-weight: 700;
+    margin: 13pt 0 5pt 0;
+    page-break-after: avoid;
+  }
+  p { margin: 0 0 7pt 0; }
+  ul { margin: 2pt 0 8pt 20pt; padding-left: 8pt; }
+  li { margin: 0 0 3pt 0; }
+  strong { font-weight: 700; }
+  code {
+    background: #f1f3f4;
+    border: 1px solid #dadce0;
+    border-radius: 2px;
+    font-family: Consolas, "Courier New", monospace;
+    font-size: 9pt;
+    padding: 0 2px;
+  }
+  a { color: #1155cc; text-decoration: underline; }
+  table {
+    border-collapse: collapse;
+    font-size: 9pt;
+    line-height: 1.18;
+    margin: 5pt 0 9pt 0;
+    width: 100%;
+    page-break-inside: avoid;
+  }
+  th, td {
+    border: 1px solid #9aa0a6;
+    padding: 4pt 5pt;
+    text-align: left;
+    vertical-align: top;
+  }
+  th {
+    background: #d9eaf7;
+    color: #17365d;
+    font-weight: 700;
+  }
+  tr:nth-child(even) td { background: #f8fafc; }
+</style>
+</head>
+<body>
+<h1 class="reviewer">Reviewer svky</h1>
+<p>Thank you for recognizing the value of separately evaluating semantic and statistical evidence. To address the scale and familiarity concerns, we added larger and newly generated graphs plus a name–data conflict control; recovery remains weak, so we narrow rather than broaden our claims. We will also clarify the paper’s contribution and terminology.</p>
+<h2>W1 — Novelty</h2>
+<p><strong>CausalMix is an evaluation and dataset contribution, not a new causal-discovery algorithm.</strong> We do not claim novelty for supervised fine-tuning (SFT), replacing variable names with neutral labels, prompting with names but no numerical data, representation comparisons, or classical baselines individually. Our contribution is a matched attribution protocol: it changes variable names, numerical evidence, or representation one at a time while holding the remaining factors fixed. This identifies whether performance comes from names, data, representation, or their interaction—information that aggregate graph scores cannot provide. CausalMix supplies the datasets, simulator, prompt builders, classical baselines, and shared scoring needed to make these comparisons reproducible. We will center this contribution in the paper and present post-training as a case study of the benchmark, not as a new training method.</p>
+<h2>W2 — Presentation and terminology</h2>
+<ul>
+<li>A <strong>semantic cue</strong> is text associated with a variable, principally its original name and description. Anonymization replaces it with a neutral label such as <strong>X1</strong>.</li>
+<li>A <strong>matched attribution test</strong> changes one factor—names, numerical evidence, or representation—while fixing the graph, data realization and seed, observation/intervention budget, variable order, model settings, required input/output format, and scoring.</li>
+</ul>
+<p>For example, a real-name/anonymized Sachs pair contains identical samples and differs only in labels such as Raf and Mek. Data/no-data pairs isolate responsiveness to numerical evidence; summary/tabular pairs compare statistical summaries with row-wise samples. We use <strong>name-mediated support</strong> to mean performance enabled by variable names, whether it comes from exact benchmark recall or broader knowledge about the named variables. Anonymization cannot distinguish those two sources. We will add these definitions and this matched example to the revised methodology.</p>
+<h2>W3 — Treatment of semantic and numerical evidence</h2>
+<p><strong>Our wording may have unintentionally implied a hierarchy between label semantics and data. We shall revise the text appropriately to address this unintended hierarchy. Semantic knowledge may encode expertise or misleading associations; numerical evidence depends on causal, sampling, and measurement assumptions. CausalMix measures both sources and does not treat data-only methods as gold standards. In controlled cells, all methods are scored against the known generating directed acyclic graph (DAG); the classical causal-discovery methods PC, GES, and ENCO are baselines under their assumptions. We will revise the relevant language.</strong></p>
+<h2>W4 — Dataset familiarity, age, and scale</h2>
+<p>The familiarity of Asia, Earthquake, Cancer, and Sachs increases the risk of pretraining recall. Their known DAGs and simulators nevertheless enable exact control over observational samples, intervention targets, samples per intervention, and seeds, allowing real-name and anonymized conditions to use identical data and budgets. We group both exact graph recall and general knowledge about named variables as <strong>name-mediated support</strong>, rather than data-driven causal discovery.</p>
+<p>To address limited graph scale and possible reliance on familiar benchmark structures, we added 20–37-node evaluations, including the newly generated Chain-25 and Jungle-25, plus degree-preserving rewired Child variants that place familiar names in conflict with new numerical evidence. These controls probe, but cannot eliminate, pretraining familiarity.</p>
+<p>For these evaluations, <strong>Base</strong> denotes Qwen3-4B-Thinking-2507 before our fine-tuning. <strong>Format SFT</strong> trains the model to produce structured responses containing gold graph targets; <strong>reasoning SFT</strong> then continues supervised training with gold answers, concise rationales, and teacher-generated rationales. We evaluated the model after both SFT phases on 20 paired realizations per comparison: 4 fixed column-order seeds × 5 independent data draws per order. Within each realization, the same draw is shared across label conditions. The table reports data-present results after format SFT + reasoning SFT. <strong>Validity</strong> is the percentage of outputs satisfying the structured-output contract and parseable at the expected graph size; acyclicity is evaluated separately. Directed-edge <strong>F1</strong> measures recovery of the true directed edges, with invalid outputs assigned F1=0. Child and Alarm are established 20- and 37-node graphs; Chain-25 is a directed chain; and Jungle-25 is a denser hierarchical DAG with connections spanning up to two levels.</p>
+<p>Because an edge list represents a set, exact repeated copies of the same directed edge are collapsed before scoring; they neither add an edge nor invalidate the graph. Self-loops, unknown endpoints, malformed edges, and truncations remain invalid. All values below use this scoring rule and aggregate 20 runs per cell. ENCO uses the same 20 datasets and numerical budget (1,000 observational samples and 10 samples per intervention):</p>
+<table><thead><tr>
+<th>Graph</th>
+<th>ENCO F1</th>
+<th>LLM original: validity / F1</th>
+<th>LLM anonymous: validity / F1</th>
+</tr></thead><tbody>
+<tr>
+<td>Child (20)</td>
+<td>0.652</td>
+<td>100% / 0.070</td>
+<td>100% / 0.104</td>
+</tr>
+<tr>
+<td>Chain-25</td>
+<td>0.609</td>
+<td>90% / 0.049</td>
+<td>100% / 0.069</td>
+</tr>
+<tr>
+<td>Jungle-25</td>
+<td>0.703</td>
+<td>95% / 0.044</td>
+<td>100% / 0.095</td>
+</tr>
+<tr>
+<td>Alarm (37)</td>
+<td>0.677</td>
+<td>60% / 0.022</td>
+<td>90% / 0.031</td>
+</tr>
+</tbody></table>
+<p>Recovery remains weak despite substantially higher parse validity. The corresponding data-use gain (F1 with data minus F1 without data, invalid outputs scored 0) is:</p>
+<table><thead><tr>
+<th>Graph</th>
+<th>Original-label gain</th>
+<th>Anonymous-label gain</th>
+</tr></thead><tbody>
+<tr>
+<td>Child (20)</td>
+<td>0.000</td>
+<td>+0.005</td>
+</tr>
+<tr>
+<td>Chain-25</td>
+<td>0.000</td>
+<td>0.000</td>
+</tr>
+<tr>
+<td>Jungle-25</td>
+<td>+0.003</td>
+<td>0.000</td>
+</tr>
+<tr>
+<td>Alarm (37)</td>
+<td>−0.133</td>
+<td>0.000</td>
+</tr>
+</tbody></table>
+<p><strong>Takeaway:</strong> ENCO reaches F1=0.609–0.703, confirming that the simulated numerical signal is recoverable under a matched data budget. The LLM remains at 0.022–0.104 despite 90–100% validity on most cells, and its data-use gain is approximately zero except for a negative original-label effect on Alarm; that effect partly reflects Alarm's lower 60% data-present validity because invalid outputs receive zero. Chain-25 and Jungle-25 are synthetic categorical graphs with neutral variable labels. We also created five Child variants that retain the original names and each variable's in- and out-degree while replacing 12–16 of the graph's 25 edges and preserving acyclicity. Because data come from the rewired graphs, these tests place familiar names in conflict with numerical evidence. These controls test unfamiliar structures and name–data conflict, but cannot rule out all pretraining effects or replace evaluation in a new scientific domain. We therefore limit our conclusions accordingly.</p>
+<p>Thank you again for the thoughtful feedback. We will use these suggestions to clarify CausalMix’s contribution, terminology, treatment of semantic and numerical evidence, and empirical scope in the revision.</p>
+<h1 class="reviewer page-break">Reviewer mUVt</h1>
+<p>We appreciate the reviewer’s positive assessment and concrete suggestions. We completed strict held-out-family training, a 30-realization replication, and tests on larger and newly generated graphs. The held-out results show transferable output reliability but mixed numerical-evidence gains, while larger-graph recovery remains weak; we narrow the claims accordingly.</p>
+<h2>W1 / Q1 — Post-training ablation and held-out-graph evaluation</h2>
+<p>We used strict leave-one-graph-out (LOGO) training, so train and test graph families do not overlap: each graph is evaluated only by models whose training data exclude it. <strong>Base</strong> denotes Qwen3-4B-Thinking-2507 before our fine-tuning. <strong>Format supervised fine-tuning (format SFT)</strong> first trains the model to produce structured responses containing gold graph targets. Starting from that checkpoint, <strong>reasoning SFT</strong> continues training with gold answers and rationales. Each of Cancer, Earthquake, Asia, and Sachs was removed from both phases, and every fold was trained with seeds 42, 314, and 2718.</p>
+<p><strong>Output validity</strong> is the percentage of responses satisfying the structured-output contract and parseable at the expected graph size; acyclicity is evaluated separately. Exact repeats of the same directed edge are collapsed before scoring. Aggregate validity averages the real-name, anonymous (neutral-label), data, and no-data conditions:</p>
+<table><thead><tr>
+<th>Held-out graph</th>
+<th>Base</th>
+<th>After format SFT</th>
+<th>After format SFT + reasoning SFT</th>
+</tr></thead><tbody>
+<tr>
+<td>Asia</td>
+<td>71.3%</td>
+<td>100%</td>
+<td>100%</td>
+</tr>
+<tr>
+<td>Cancer</td>
+<td>86.3%</td>
+<td>100%</td>
+<td>100%</td>
+</tr>
+<tr>
+<td>Earthquake</td>
+<td>76.3%</td>
+<td>100%</td>
+<td>100%</td>
+</tr>
+<tr>
+<td>Sachs</td>
+<td>73.8%</td>
+<td>100%</td>
+<td>100%</td>
+</tr>
+</tbody></table>
+<p>Directed-edge <strong>F1</strong> measures recovery of the true directed edges, with invalid outputs assigned F1=0. We define <strong>data-use gain</strong> as F1(with data) − F1(without data). The next table reports how reasoning SFT changed this gain relative to format SFT, with 95% bootstrap CIs over 60 paired predictions per graph and naming condition: 20 data pairs (4 fixed column-order seeds × 5 independent data draws per order) × 3 training seeds.</p>
+<table><thead><tr>
+<th>Held-out graph</th>
+<th>Real names: reasoning SFT effect [95% CI]</th>
+<th>Anonymous: reasoning SFT effect [95% CI]</th>
+</tr></thead><tbody>
+<tr>
+<td>Asia</td>
+<td>−0.071 [−0.116, −0.028]</td>
+<td>+0.028 [+0.003, +0.054]</td>
+</tr>
+<tr>
+<td>Cancer</td>
+<td>+0.003 [−0.056, +0.061]</td>
+<td>+0.004 [−0.056, +0.069]</td>
+</tr>
+<tr>
+<td>Earthquake</td>
+<td>−0.025 [−0.074, +0.027]</td>
+<td>+0.037 [+0.012, +0.064]</td>
+</tr>
+<tr>
+<td>Sachs</td>
+<td>−0.036 [−0.067, −0.008]</td>
+<td>+0.018 [−0.013, +0.049]</td>
+</tr>
+</tbody></table>
+<p><strong>Takeaway:</strong> Format SFT transfers output reliability to held-out graph families, but reasoning SFT has mixed numerical-evidence effects. Because both phases use gold graph targets, content imitation remains possible. Together with the newly generated larger graphs in W3, this addresses training-family overlap and direct topology familiarity without claiming that pretraining familiarity is eliminated. We will report all fold-seed runs and present post-training as a diagnostic case study, not a new training contribution.</p>
+<h2>W2 — Statistical power</h2>
+<p>We expanded the primary Sachs comparison from five to 30 paired realizations—independent data draws shared by the data and no-data conditions. Here, <strong>data effect</strong> means the data-use gain defined above. We report paired 95% bootstrap CIs and assign F1=0 to invalid outputs.</p>
+<table><thead><tr>
+<th>Model</th>
+<th>Real names: data effect [95% CI]</th>
+<th>Anonymous: data effect [95% CI]</th>
+</tr></thead><tbody>
+<tr>
+<td>Base (Qwen3-4B-Thinking-2507)</td>
+<td>−0.183 [−0.234, −0.130]</td>
+<td>+0.230 [+0.207, +0.252]</td>
+</tr>
+<tr>
+<td>GPT-5-mini</td>
+<td>−0.087 [−0.104, −0.069]</td>
+<td>+0.039 [+0.017, +0.062]</td>
+</tr>
+<tr>
+<td>After format SFT</td>
+<td>−0.091 [−0.143, −0.040]</td>
+<td>+0.061 [+0.023, +0.100]</td>
+</tr>
+<tr>
+<td>After format SFT + reasoning SFT</td>
+<td>−0.089 [−0.168, −0.010]</td>
+<td>+0.061 [+0.025, +0.096]</td>
+</tr>
+</tbody></table>
+<p><strong>Takeaway:</strong> All eight paired sign-flip tests have p ≤ 0.0403: adding data lowers F1 with real names but improves it anonymously in this Sachs slice. We treat the remaining five-realization cells as descriptive; this replication supports the prespecified contrast, not every benchmark cell.</p>
+<h2>W3 / Q2 / Q3 — Graph familiarity and scale</h2>
+<p><strong>Familiarity.</strong> Chain-25 is a 25-node directed chain; Jungle-25 is a denser 25-node hierarchical graph. Both were generated for this evaluation. We also created five variants of the 20-node Child directed acyclic graph (DAG) that retain its variable names and each node's in- and out-degree while changing 12–16 of its 25 edges. On <strong>disputed edges</strong>, where the canonical and rewired Child graphs differ, the model after format SFT + reasoning SFT followed the rewired graph on 45.0% and the canonical graph on 43.6% with real names; anonymously, the rates were 41.4% and 43.6%. Thus, the supplied data did not create a consistent preference for the rewired structure. We use <strong>name-mediated support</strong> to mean performance enabled by variable names, whether it comes from exact benchmark recall or broader knowledge; these tests cannot distinguish those sources. These controls test unfamiliar topologies, but they do not provide a newly constructed named scientific domain or rule out broader pretraining exposure.</p>
+<p><strong>Scale.</strong> We evaluated the same real-name/anonymous and data/no-data comparisons on four larger graphs with 20 paired realizations per contrast. Exact repeated copies of a directed edge are collapsed before scoring because edge lists represent sets; other contract failures remain invalid. All LLM values below use this scoring rule and aggregate 20 runs per cell. ENCO uses the same 20 datasets and numerical budget. The table reports data-present LLM results after format SFT + reasoning SFT:</p>
+<table><thead><tr>
+<th>Graph</th>
+<th>ENCO F1</th>
+<th>LLM original: validity / F1</th>
+<th>LLM anonymous: validity / F1</th>
+</tr></thead><tbody>
+<tr>
+<td>Child (20)</td>
+<td>0.652</td>
+<td>100% / 0.070</td>
+<td>100% / 0.104</td>
+</tr>
+<tr>
+<td>Chain-25</td>
+<td>0.609</td>
+<td>90% / 0.049</td>
+<td>100% / 0.069</td>
+</tr>
+<tr>
+<td>Jungle-25</td>
+<td>0.703</td>
+<td>95% / 0.044</td>
+<td>100% / 0.095</td>
+</tr>
+<tr>
+<td>Alarm (37)</td>
+<td>0.677</td>
+<td>60% / 0.022</td>
+<td>90% / 0.031</td>
+</tr>
+</tbody></table>
+<p>We also report the data-use gain (F1 with data minus F1 without data) at these graphs, since that is the estimand our central claim rests on and it was missing from the table above:</p>
+<table><thead><tr>
+<th>Graph</th>
+<th>Original-label gain</th>
+<th>Anonymous-label gain</th>
+</tr></thead><tbody>
+<tr>
+<td>Child (20)</td>
+<td>0.000</td>
+<td>+0.005</td>
+</tr>
+<tr>
+<td>Chain-25</td>
+<td>0.000</td>
+<td>0.000</td>
+</tr>
+<tr>
+<td>Jungle-25</td>
+<td>+0.003</td>
+<td>0.000</td>
+</tr>
+<tr>
+<td>Alarm (37)</td>
+<td>−0.133</td>
+<td>0.000</td>
+</tr>
+</tbody></table>
+<p><strong>Takeaway:</strong> ENCO reaches F1=0.609–0.703 under the matched data budget, whereas LLM F1 remains 0.022–0.104 and its data-use gain is nearly zero except for a negative original-label Alarm effect. The latter partly reflects Alarm's 60% data-present validity because invalid outputs receive zero. High parse validity therefore does not imply successful recovery; these tests do not establish scalable LLM causal discovery.</p>
+<p>Thank you again for the constructive suggestions. The requested experiments strengthen CausalMix’s evaluation under held-out, repeated, and larger-graph settings. We will incorporate them and clarify the scope of our conclusions in the revision.</p>
+<h1 class="reviewer page-break">Reviewer zDep</h1>
+<p>Thank you for recognizing the importance of separating variable-name and numerical evidence. We added larger/newly generated graphs, held-out post-training ablations, a 30-run replication, and edge-level analyses; they show transferable format reliability but weak and unstable numerical recovery.</p>
+<h2>W1 / Q1 — Larger and more complex graphs</h2>
+<p>We ran the original/anonymous-label × data/no-data design on four 20–37-node graphs over 20 matched runs (4 column orders × 5 independent draws). The table reports data-present Qwen3-4B results after format and reasoning SFT. <strong>Validity</strong> means contract-compliant output at the expected graph size; acyclicity is separate, and invalid outputs receive F1=0. Exact duplicate edges are collapsed, while self-loops, unknown endpoints, malformed edges, and truncations remain invalid. All values below use this scoring rule and aggregate 20 runs per cell. ENCO uses the same 20 datasets and numerical budget.</p>
+<table><thead><tr>
+<th>Graph</th>
+<th>ENCO F1</th>
+<th>LLM original: validity / F1</th>
+<th>LLM anonymous: validity / F1</th>
+</tr></thead><tbody>
+<tr>
+<td>Child (20)</td>
+<td>0.652</td>
+<td>100% / 0.070</td>
+<td>100% / 0.104</td>
+</tr>
+<tr>
+<td>Chain-25</td>
+<td>0.609</td>
+<td>90% / 0.049</td>
+<td>100% / 0.069</td>
+</tr>
+<tr>
+<td>Jungle-25</td>
+<td>0.703</td>
+<td>95% / 0.044</td>
+<td>100% / 0.095</td>
+</tr>
+<tr>
+<td>Alarm (37)</td>
+<td>0.677</td>
+<td>60% / 0.022</td>
+<td>90% / 0.031</td>
+</tr>
+</tbody></table>
+<p>This does not contrast data-present against no-data at these graphs, which is the estimand our central claim rests on. That contrast (data-use gain, invalid=0) is:</p>
+<table><thead><tr>
+<th>Graph</th>
+<th>Original-label gain</th>
+<th>Anonymous-label gain</th>
+</tr></thead><tbody>
+<tr>
+<td>Child (20)</td>
+<td>0.000</td>
+<td>+0.005</td>
+</tr>
+<tr>
+<td>Chain-25</td>
+<td>0.000</td>
+<td>0.000</td>
+</tr>
+<tr>
+<td>Jungle-25</td>
+<td>+0.003</td>
+<td>0.000</td>
+</tr>
+<tr>
+<td>Alarm (37)</td>
+<td>−0.133</td>
+<td>0.000</td>
+</tr>
+</tbody></table>
+<p><strong>Takeaway:</strong> ENCO reaches F1=0.609–0.703 under the matched budget, confirming recoverable numerical signal. Even at 90–100% LLM validity on most cells, F1 remains 0.022–0.104 and data-use gains are approximately zero except for a negative original-label Alarm effect; that effect partly reflects Alarm's 60% data-present validity because invalid outputs receive zero. We do not claim successful large-graph LLM recovery.</p>
+<h2>W2 / Q2 — Post-training ablations and train–test independence</h2>
+<p>We agree that identifying the source of post-training gains requires explicit ablations. We therefore crossed three training stages—<strong>Base</strong>, format SFT, and format SFT + reasoning SFT—with a 2×2 information-source ablation: original versus anonymous labels and data versus no data. We evaluated this factorial design under leave-one-graph-out (LOGO) training, so every evaluated graph was excluded from both SFT phases. <strong>Base</strong> denotes Qwen3-4B-Thinking-2507 before our fine-tuning. Each of Cancer, Earthquake, Asia, and Sachs was held out in turn, and every fold was trained with seeds 42, 314, and 2718. Aggregate validity averages the four information-source conditions:</p>
+<table><thead><tr>
+<th>Held-out graph</th>
+<th>Base</th>
+<th>After format SFT</th>
+<th>After format SFT + reasoning SFT</th>
+</tr></thead><tbody>
+<tr>
+<td>Asia</td>
+<td>71.3%</td>
+<td>100%</td>
+<td>100%</td>
+</tr>
+<tr>
+<td>Cancer</td>
+<td>86.3%</td>
+<td>100%</td>
+<td>100%</td>
+</tr>
+<tr>
+<td>Earthquake</td>
+<td>76.3%</td>
+<td>100%</td>
+<td>100%</td>
+</tr>
+<tr>
+<td>Sachs</td>
+<td>73.8%</td>
+<td>100%</td>
+<td>100%</td>
+</tr>
+</tbody></table>
+<p>We define <strong>data-use gain</strong> as F1(with data) − F1(without data). The next table reports how reasoning SFT changed this gain relative to format SFT, with 95% bootstrap CIs over 60 paired predictions per graph and naming condition: the 20 data pairs above × 3 training seeds.</p>
+<table><thead><tr>
+<th>Held-out graph</th>
+<th>Real names: reasoning SFT effect [95% CI]</th>
+<th>Anonymous: reasoning SFT effect [95% CI]</th>
+</tr></thead><tbody>
+<tr>
+<td>Asia</td>
+<td>−0.071 [−0.116, −0.028]</td>
+<td>+0.028 [+0.003, +0.054]</td>
+</tr>
+<tr>
+<td>Cancer</td>
+<td>+0.003 [−0.056, +0.061]</td>
+<td>+0.004 [−0.056, +0.069]</td>
+</tr>
+<tr>
+<td>Earthquake</td>
+<td>−0.025 [−0.074, +0.027]</td>
+<td>+0.037 [+0.012, +0.064]</td>
+</tr>
+<tr>
+<td>Sachs</td>
+<td>−0.036 [−0.067, −0.008]</td>
+<td>+0.018 [−0.013, +0.049]</td>
+</tr>
+</tbody></table>
+<table><thead><tr>
+<th>Candidate explanation</th>
+<th>Ablation result</th>
+<th>Conclusion</th>
+</tr></thead><tbody>
+<tr>
+<td>Output-contract learning</td>
+<td>LOGO validity increases from 71.3%–86.3% for Base to 100% after format SFT.</td>
+<td>Strongly supported.</td>
+</tr>
+<tr>
+<td>Training-graph memorization</td>
+<td>The validity gain persists when the evaluated graph is excluded from both SFT phases.</td>
+<td>Not necessary for the validity gain.</td>
+</tr>
+<tr>
+<td>Semantic dependence</td>
+<td>LOGO names-only F1 is 0.498 versus 0.157 after format SFT and 0.489 versus 0.134 after reasoning SFT, original versus anonymous labels.</td>
+<td>Strong name dependence; its pretraining source remains unresolved.</td>
+</tr>
+<tr>
+<td>Numerical integration</td>
+<td>Reasoning-SFT effects on data-use gain vary in sign across graphs and naming conditions.</td>
+<td>Small and inconsistent.</td>
+</tr>
+</tbody></table>
+<p><strong>Takeaway:</strong> These ablations identify transferable output reliability as the most robust gain and rule out evaluated-family overlap as necessary for it, but do not show consistent numerical-integration improvement. The rewired-Child ablation in Q4 adds an adversarial name–data conflict. Because both SFT phases contain gold graph targets, format learning, content imitation, and pretraining familiarity are not fully separated; we do not attribute these supervised-checkpoint gains to verifier optimization or claim complete mechanistic identification.</p>
+<h2>W3 / Q3 — Statistical and qualitative evidence</h2>
+<p>We expanded the primary Sachs comparison to 30 paired realizations—independent data draws shared by the data and no-data conditions. Here, <strong>data effect</strong> means the data-use gain defined above. We report paired 95% bootstrap CIs and assign F1=0 to invalid outputs.</p>
+<table><thead><tr>
+<th>Model</th>
+<th>Real names: data effect [95% CI]</th>
+<th>Anonymous: data effect [95% CI]</th>
+</tr></thead><tbody>
+<tr>
+<td>Base (Qwen3-4B-Thinking-2507)</td>
+<td>−0.183 [−0.234, −0.130]</td>
+<td>+0.230 [+0.207, +0.252]</td>
+</tr>
+<tr>
+<td>GPT-5-mini</td>
+<td>−0.087 [−0.104, −0.069]</td>
+<td>+0.039 [+0.017, +0.062]</td>
+</tr>
+<tr>
+<td>After format SFT</td>
+<td>−0.091 [−0.143, −0.040]</td>
+<td>+0.061 [+0.023, +0.100]</td>
+</tr>
+<tr>
+<td>After format SFT + reasoning SFT</td>
+<td>−0.089 [−0.168, −0.010]</td>
+<td>+0.061 [+0.025, +0.096]</td>
+</tr>
+</tbody></table>
+<p><strong>Takeaway:</strong> All eight paired sign-flip tests have p ≤ 0.0403: adding data lowers F1 with real names but improves it anonymously in this Sachs slice. We treat the remaining five-realization cells as descriptive.</p>
+<p>At the edge level, a <strong>correction</strong> changes an incorrect prediction to the true edge state, while a <strong>regression</strong> changes a correct prediction to an incorrect state. Across 60 valid real-name Sachs LOGO pairs, data corrected Jnk–P38 and Erk–P38 36 times each, but regressed PIP2–PKA and Mek–Plcg 31 times each. These cases show how local corrections and regressions can offset each other in graph-level F1.</p>
+<h2>Q4 — Direct numerical-evidence response</h2>
+<p>After format SFT + reasoning SFT, we compared predictions with and without data on every variable pair among paired-valid outputs. A <strong>beneficial</strong> change corrects an edge state, a <strong>harmful</strong> change breaks one, and <strong>net benefit</strong> is their rate difference. “Scale suite” denotes Child, Chain-25, Jungle-25, and Alarm; LOGO is defined in W2/Q2.</p>
+<table><thead><tr>
+<th>Evaluation</th>
+<th>Paired-valid / total</th>
+<th>Edges changed</th>
+<th>Beneficial</th>
+<th>Harmful</th>
+<th>Net benefit (percentage points)</th>
+</tr></thead><tbody>
+<tr>
+<td>Scale suite, original labels</td>
+<td>69 / 80</td>
+<td>18.7%</td>
+<td>5.7%</td>
+<td>11.4%</td>
+<td>−5.7</td>
+</tr>
+<tr>
+<td>Scale suite, anonymous</td>
+<td>78 / 80</td>
+<td>34.0%</td>
+<td>5.0%</td>
+<td>26.7%</td>
+<td>−21.7</td>
+</tr>
+<tr>
+<td>Strict leave-one-graph-out, real names</td>
+<td>240 / 240</td>
+<td>28.2%</td>
+<td>11.4%</td>
+<td>15.0%</td>
+<td>−3.6</td>
+</tr>
+<tr>
+<td>Strict leave-one-graph-out, anonymous</td>
+<td>240 / 240</td>
+<td>25.5%</td>
+<td>9.8%</td>
+<td>12.3%</td>
+<td>−2.5</td>
+</tr>
+<tr>
+<td>Sachs, 30 realizations, anonymous</td>
+<td>30 / 30</td>
+<td>42.2%</td>
+<td>10.8%</td>
+<td>25.5%</td>
+<td>−14.7</td>
+</tr>
+</tbody></table>
+<p><strong>Takeaway:</strong> As an adversarial ablation, five Child variants preserve names and node degrees while changing 12–16 of 25 edges. On disputed pairs, adding data reduced following of the rewired graph by 1.0 percentage point with real names and 7.9 anonymously, while increasing unresolved choices by 5.4 and 14.5 points. Across the broader paired-valid analyses, data change many local decisions but harmful changes often offset or exceed beneficial ones. We therefore replace “models ignore data” with <strong>partial local responsiveness with unstable numerical-evidence integration</strong>. We do not interpret a shuffled-data placebo whose prompts exceeded the context limit.</p>
+<h2>W4 / Q5 — Model coverage</h2>
+<p>The submission evaluates ten GPT-5/Llama/Qwen models, and the rebuttal adds a 30-run GPT-5-mini replication. During the rebuttal period, we also completed interim 10-run evaluations of Granite-3.2-8B and DeepSeek-V2-Lite-Chat (an actual DeepSeek-family checkpoint) on Child, Sachs, and larger graphs; 20-run replications are ongoing. We report these interim results only descriptively and do not use them for confidence intervals or small-effect claims. We will include the completed cross-family coverage, uncertainty estimates, and failure-mode analysis in the revised manuscript. Separately, three Ministral reasoning checkpoints produced 0% strict validity on the completed Child/Sachs grid, Mistral-Small-3.1-24B failed to load, and preliminary DeepSeek-R1-Distill-Llama-8B outputs were invalid. We treat these as protocol-compatibility failures, not causal-capability evidence; main inferential conclusions remain scoped to GPT/Qwen/Llama.</p>
+<h2>Formatting concern — Dataset access</h2>
+<p>On July 26, 2026, we verified through unauthenticated access that <a href="https://huggingface.co/datasets/mixcausalbench/anonymous-data">the dataset repository</a> is public and ungated. We will make this access information explicit in the revised artifact documentation.</p>
+<p>Thank you again for the thoughtful feedback. We will incorporate these results and scope clarifications in the revision.</p>
+</body>
+</html>

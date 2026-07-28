@@ -1,14 +1,12 @@
-# Paste-ready OpenReview responses
-
-Copy only the text between the `COPY` markers into the corresponding OpenReview reply. The Area Chair’s concerns are addressed across the three reviewer responses. Each response is below 10,000 characters.
-
----
-
-## Reviewer svky
-
-<!-- COPY START: svky -->
-
-Thank you for recognizing the value of separately evaluating semantic and statistical evidence. To address the scale and familiarity concerns, we added larger and newly generated graphs plus a name–data conflict control; recovery remains weak, so we narrow rather than broaden our claims. We will also clarify the paper’s contribution and terminology.
+<!doctype html><html lang="en"><head><meta charset="utf-8">
+<title>CausalMix OpenReview Markdown</title>
+<style>
+body{font-family:Arial,sans-serif;color:#202124;margin:32px auto;max-width:1200px;line-height:1.35}
+section{margin-bottom:48px;page-break-before:always}section:first-child{page-break-before:auto}
+h1{color:#17365d;border-bottom:2px solid #5b9bd5;padding-bottom:8px}
+pre{white-space:pre-wrap;overflow-wrap:anywhere;background:#f5f7fa;border:1px solid #c7cdd4;
+padding:16px;font:14px/1.4 Consolas,"Courier New",monospace;color:#111}
+</style></head><body><section><h1>Reviewer svky — OpenReview Markdown</h1><p><em>Copy the Markdown block below into this reviewer’s OpenReview response.</em></p><pre>Thank you for recognizing the value of separately evaluating semantic and statistical evidence. To address the scale and familiarity concerns, we added larger and newly generated graphs plus a name–data conflict control; recovery remains weak, so we narrow rather than broaden our claims. We will also clarify the paper’s contribution and terminology.
 
 ### W1 — Novelty
 
@@ -51,19 +49,10 @@ Recovery remains weak despite substantially higher parse validity. The correspon
 | Jungle-25 | +0.003 | 0.000 |
 | Alarm (37) | −0.133 | 0.000 |
 
-**Takeaway:** ENCO reaches F1=0.609–0.703, confirming that the simulated numerical signal is recoverable under a matched data budget. The LLM remains at 0.022–0.104 despite 90–100% validity on most cells, and its data-use gain is approximately zero except for a negative original-label effect on Alarm; that effect partly reflects Alarm's lower 60% data-present validity because invalid outputs receive zero. Chain-25 and Jungle-25 are synthetic categorical graphs with neutral variable labels. We also created five Child variants that retain the original names and each variable's in- and out-degree while replacing 12–16 of the graph's 25 edges and preserving acyclicity. Because data come from the rewired graphs, these tests place familiar names in conflict with numerical evidence. These controls test unfamiliar structures and name–data conflict, but cannot rule out all pretraining effects or replace evaluation in a new scientific domain. We therefore limit our conclusions accordingly.
+**Takeaway:** ENCO reaches F1=0.609–0.703, confirming that the simulated numerical signal is recoverable under a matched data budget. The LLM remains at 0.022–0.104 despite 90–100% validity on most cells, and its data-use gain is approximately zero except for a negative original-label effect on Alarm; that effect partly reflects Alarm&#x27;s lower 60% data-present validity because invalid outputs receive zero. Chain-25 and Jungle-25 are synthetic categorical graphs with neutral variable labels. We also created five Child variants that retain the original names and each variable&#x27;s in- and out-degree while replacing 12–16 of the graph&#x27;s 25 edges and preserving acyclicity. Because data come from the rewired graphs, these tests place familiar names in conflict with numerical evidence. These controls test unfamiliar structures and name–data conflict, but cannot rule out all pretraining effects or replace evaluation in a new scientific domain. We therefore limit our conclusions accordingly.
 
-Thank you again for the thoughtful feedback. We will use these suggestions to clarify CausalMix’s contribution, terminology, treatment of semantic and numerical evidence, and empirical scope in the revision.
-
-<!-- COPY END: svky -->
-
----
-
-## Reviewer mUVt
-
-<!-- COPY START: mUVt -->
-
-We appreciate the reviewer’s positive assessment and concrete suggestions. We completed strict held-out-family training, a 30-realization replication, and tests on larger and newly generated graphs. The held-out results show transferable output reliability but mixed numerical-evidence gains, while larger-graph recovery remains weak; we narrow the claims accordingly.
+Thank you again for the thoughtful feedback. We will use these suggestions to clarify CausalMix’s contribution, terminology, treatment of semantic and numerical evidence, and empirical scope in the revision.</pre></section>
+<section><h1>Reviewer mUVt — OpenReview Markdown</h1><p><em>Copy the Markdown block below into this reviewer’s OpenReview response.</em></p><pre>We appreciate the reviewer’s positive assessment and concrete suggestions. We completed strict held-out-family training, a 30-realization replication, and tests on larger and newly generated graphs. The held-out results show transferable output reliability but mixed numerical-evidence gains, while larger-graph recovery remains weak; we narrow the claims accordingly.
 
 ### W1 / Q1 — Post-training ablation and held-out-graph evaluation
 
@@ -104,7 +93,7 @@ We expanded the primary Sachs comparison from five to 30 paired realizations—i
 
 ### W3 / Q2 / Q3 — Graph familiarity and scale
 
-**Familiarity.** Chain-25 is a 25-node directed chain; Jungle-25 is a denser 25-node hierarchical graph. Both were generated for this evaluation. We also created five variants of the 20-node Child directed acyclic graph (DAG) that retain its variable names and each node's in- and out-degree while changing 12–16 of its 25 edges. On **disputed edges**, where the canonical and rewired Child graphs differ, the model after format SFT + reasoning SFT followed the rewired graph on 45.0% and the canonical graph on 43.6% with real names; anonymously, the rates were 41.4% and 43.6%. Thus, the supplied data did not create a consistent preference for the rewired structure. We use **name-mediated support** to mean performance enabled by variable names, whether it comes from exact benchmark recall or broader knowledge; these tests cannot distinguish those sources. These controls test unfamiliar topologies, but they do not provide a newly constructed named scientific domain or rule out broader pretraining exposure.
+**Familiarity.** Chain-25 is a 25-node directed chain; Jungle-25 is a denser 25-node hierarchical graph. Both were generated for this evaluation. We also created five variants of the 20-node Child directed acyclic graph (DAG) that retain its variable names and each node&#x27;s in- and out-degree while changing 12–16 of its 25 edges. On **disputed edges**, where the canonical and rewired Child graphs differ, the model after format SFT + reasoning SFT followed the rewired graph on 45.0% and the canonical graph on 43.6% with real names; anonymously, the rates were 41.4% and 43.6%. Thus, the supplied data did not create a consistent preference for the rewired structure. We use **name-mediated support** to mean performance enabled by variable names, whether it comes from exact benchmark recall or broader knowledge; these tests cannot distinguish those sources. These controls test unfamiliar topologies, but they do not provide a newly constructed named scientific domain or rule out broader pretraining exposure.
 
 **Scale.** We evaluated the same real-name/anonymous and data/no-data comparisons on four larger graphs with 20 paired realizations per contrast. Exact repeated copies of a directed edge are collapsed before scoring because edge lists represent sets; other contract failures remain invalid. All LLM values below use this scoring rule and aggregate 20 runs per cell. ENCO uses the same 20 datasets and numerical budget. The table reports data-present LLM results after format SFT + reasoning SFT:
 
@@ -124,19 +113,10 @@ We also report the data-use gain (F1 with data minus F1 without data) at these g
 | Jungle-25 | +0.003 | 0.000 |
 | Alarm (37) | −0.133 | 0.000 |
 
-**Takeaway:** ENCO reaches F1=0.609–0.703 under the matched data budget, whereas LLM F1 remains 0.022–0.104 and its data-use gain is nearly zero except for a negative original-label Alarm effect. The latter partly reflects Alarm's 60% data-present validity because invalid outputs receive zero. High parse validity therefore does not imply successful recovery; these tests do not establish scalable LLM causal discovery.
+**Takeaway:** ENCO reaches F1=0.609–0.703 under the matched data budget, whereas LLM F1 remains 0.022–0.104 and its data-use gain is nearly zero except for a negative original-label Alarm effect. The latter partly reflects Alarm&#x27;s 60% data-present validity because invalid outputs receive zero. High parse validity therefore does not imply successful recovery; these tests do not establish scalable LLM causal discovery.
 
-Thank you again for the constructive suggestions. The requested experiments strengthen CausalMix’s evaluation under held-out, repeated, and larger-graph settings. We will incorporate them and clarify the scope of our conclusions in the revision.
-
-<!-- COPY END: mUVt -->
-
----
-
-## Reviewer zDep
-
-<!-- COPY START: zDep -->
-
-Thank you for recognizing the importance of separating variable-name and numerical evidence. We added larger/newly generated graphs, held-out post-training ablations, a 30-run replication, and edge-level analyses; they show transferable format reliability but weak and unstable numerical recovery.
+Thank you again for the constructive suggestions. The requested experiments strengthen CausalMix’s evaluation under held-out, repeated, and larger-graph settings. We will incorporate them and clarify the scope of our conclusions in the revision.</pre></section>
+<section><h1>Reviewer zDep — OpenReview Markdown</h1><p><em>Copy the Markdown block below into this reviewer’s OpenReview response.</em></p><pre>Thank you for recognizing the importance of separating variable-name and numerical evidence. We added larger/newly generated graphs, held-out post-training ablations, a 30-run replication, and edge-level analyses; they show transferable format reliability but weak and unstable numerical recovery.
 
 ### W1 / Q1 — Larger and more complex graphs
 
@@ -158,7 +138,7 @@ This does not contrast data-present against no-data at these graphs, which is th
 | Jungle-25 | +0.003 | 0.000 |
 | Alarm (37) | −0.133 | 0.000 |
 
-**Takeaway:** ENCO reaches F1=0.609–0.703 under the matched budget, confirming recoverable numerical signal. Even at 90–100% LLM validity on most cells, F1 remains 0.022–0.104 and data-use gains are approximately zero except for a negative original-label Alarm effect; that effect partly reflects Alarm's 60% data-present validity because invalid outputs receive zero. We do not claim successful large-graph LLM recovery.
+**Takeaway:** ENCO reaches F1=0.609–0.703 under the matched budget, confirming recoverable numerical signal. Even at 90–100% LLM validity on most cells, F1 remains 0.022–0.104 and data-use gains are approximately zero except for a negative original-label Alarm effect; that effect partly reflects Alarm&#x27;s 60% data-present validity because invalid outputs receive zero. We do not claim successful large-graph LLM recovery.
 
 ### W2 / Q2 — Post-training ablations and train–test independence
 
@@ -184,7 +164,7 @@ We define **data-use gain** as F1(with data) − F1(without data). The next tabl
 |---|---|---|
 | Output-contract learning | LOGO validity increases from 71.3%–86.3% for Base to 100% after format SFT. | Strongly supported. |
 | Training-graph memorization | The validity gain persists when the evaluated graph is excluded from both SFT phases. | Not necessary for the validity gain. |
-| Semantic dependence | In the LOGO names-only condition, directed-edge F1 drops from 0.498 with original variable names to 0.157 with anonymous labels after format SFT (−0.341), and from 0.489 to 0.134 after reasoning SFT (−0.355). | Without numerical data, recovery depends strongly on meaningful variable names. Because the test graph was excluded from both SFT phases, evaluated-family overlap is not required, but the underlying pretraining source remains unresolved. |
+| Semantic dependence | LOGO names-only F1 is 0.498 versus 0.157 after format SFT and 0.489 versus 0.134 after reasoning SFT, original versus anonymous labels. | Strong name dependence; its pretraining source remains unresolved. |
 | Numerical integration | Reasoning-SFT effects on data-use gain vary in sign across graphs and naming conditions. | Small and inconsistent. |
 
 **Takeaway:** These ablations identify transferable output reliability as the most robust gain and rule out evaluated-family overlap as necessary for it, but do not show consistent numerical-integration improvement. The rewired-Child ablation in Q4 adds an adversarial name–data conflict. Because both SFT phases contain gold graph targets, format learning, content imitation, and pretraining familiarity are not fully separated; we do not attribute these supervised-checkpoint gains to verifier optimization or claim complete mechanistic identification.
@@ -226,6 +206,4 @@ The submission evaluates ten GPT-5/Llama/Qwen models, and the rebuttal adds a 30
 
 On July 26, 2026, we verified through unauthenticated access that [the dataset repository](https://huggingface.co/datasets/mixcausalbench/anonymous-data) is public and ungated. We will make this access information explicit in the revised artifact documentation.
 
-Thank you again for the thoughtful feedback. We will incorporate these results and scope clarifications in the revision.
-
-<!-- COPY END: zDep -->
+Thank you again for the thoughtful feedback. We will incorporate these results and scope clarifications in the revision.</pre></section></body></html>
