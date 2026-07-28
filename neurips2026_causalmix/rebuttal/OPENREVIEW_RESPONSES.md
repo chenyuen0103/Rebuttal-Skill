@@ -28,11 +28,7 @@ For example, a real-name/anonymized Sachs pair contains identical samples and di
 
 ### W3 — Treatment of semantic and numerical evidence
 
-<<<<<<< HEAD
-**Our wording may have unintentionally implied a hierarchy between label semantics and data. We shall revise the text appropriately to address this unintended hierarchy. Semantic knowledge may encode expertise or misleading associations; numerical evidence depends on causal, sampling, and measurement assumptions. CausalMix measures both sources and does not treat data-only methods as gold standards. In controlled cells, all methods are scored against the known generating directed acyclic graph (DAG); the classical causal-discovery methods PC, GES, and ENCO are baselines under their assumptions. We will revise the relevant language.**
-=======
 Our wording may have unintentionally implied a hierarchy between label semantics and data. We shall revise the text appropriately to address this unintended hierarchy. Semantic knowledge may encode expertise or misleading associations; numerical evidence depends on causal, sampling, and measurement assumptions. CausalMix measures both sources and does not treat data-only methods as gold standards. In controlled cells, all methods are scored against the known generating directed acyclic graph (DAG); the classical causal-discovery methods PC, GES, and ENCO are baselines under their assumptions. We will revise the relevant language.
->>>>>>> 8133a41b18ebf410ba6206f6bd12a1ebabcc4c43
 
 ### W4 — Dataset familiarity, age, and scale
 
