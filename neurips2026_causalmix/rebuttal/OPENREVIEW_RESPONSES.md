@@ -1,11 +1,96 @@
 # Current OpenReview rebuttal responses with clarified tables
 
-The prose and numerical results below reproduce the rebuttal responses posted on OpenReview on July 27, 2026. Table headers and captions have been clarified for readability. Copy only the text between the `COPY` markers into the corresponding OpenReview reply.
+The prose and numerical results below are the current rebuttal drafts. Table headers and captions have been clarified for readability. Copy only the text between the `COPY` markers into the corresponding OpenReview reply.
 
 Throughout the tables:
 
 - **Data-use gain** is `F1(with data) − F1(without data)`.
 - **Reasoning-SFT effect** is `data-use gain after reasoning SFT − data-use gain after format SFT`.
+
+---
+
+## Global response — Additional model-family and graph-scale coverage
+
+<!-- COPY START: global -->
+
+### Consolidated experimental update and revised claim scope
+
+Thank you to all reviewers for emphasizing graph scale, model coverage, train–test independence, and statistical robustness. We have now completed the corresponding evaluations.
+
+All added scale experiments use a fixed budget of **1,000 observational samples and 10 interventional samples per target**, averaged over **20 matched runs per condition**. We count an output as parseable when it contains a complete graph JSON object, including when that object follows reasoning text or appears in a Markdown fence. Before computing validity or graph metrics, exact repeated copies of the same directed edge are collapsed. Outputs containing incomplete JSON, self-loops, unknown endpoints, malformed edges, truncations, or other graph-contract violations remain invalid and receive F1=0.
+
+**Coverage.** We evaluated nine local checkpoints spanning Gemma, Mistral, Llama, Qwen, DeepSeek, and Granite on graphs with 5, 8, 11, 20, 25, 37, and 50 nodes. Semantic graphs retain the original/anonymous-label × data/no-data design. Newly generated 25- and 50-node graphs use neutral labels and therefore only the anonymous conditions. We also evaluated GPT-5-mini on all six larger graphs shared by the cross-family comparison.
+
+**Cross-family results on larger graphs.** The shared set contains Child-20, Chain-25, Jungle-25, Alarm-37, Chain-50, and Jungle-50. Results are macro-averaged over 20 anonymous, data-present runs per graph. Validity is computed after extracting a complete graph JSON object and deduplicating repeated edges.
+
+| Model | Mean parse validity | Mean directed-edge F1 |
+|---|---:|---:|
+| Gemma-3-12B-IT | 22.5% | 0.007 |
+| Ministral-3-8B-Reasoning | 0.0% | 0.000 |
+| Llama-3.1-8B-Instruct | 59.2% | 0.040 |
+| Qwen2.5-7B-Instruct | 0.0% | 0.000 |
+| Qwen3-4B-Thinking base | 83.3% | 0.057 |
+| Qwen3-4B after format SFT | 87.5% | 0.051 |
+| Qwen3-4B after format + reasoning SFT | 92.5% | 0.056 |
+| DeepSeek-V2-Lite-Chat | 50.0% | 0.033 |
+| IBM Granite-3.2-8B-Instruct | 66.7% | 0.057 |
+| GPT-5-mini | 100% | 0.002 |
+
+**Takeaway:** GPT-5-mini produced parseable graphs in all 120 runs but achieved only 0.002 mean directed-edge F1. More broadly, accepting complete JSON embedded in prose substantially raises validity for Gemma, DeepSeek, and Qwen3, yet no model exceeds 0.057 mean F1. Thus, weak recovery is not merely an artifact of rejecting usable JSON or limited to the local checkpoints. Qwen2.5 exceeded its context window in these cells, while the Ministral endpoint returned generation traces but no saved answer content; their zero rows are protocol/inference failures and are not evidence about causal capability. This table establishes model breadth and scalability limitations, not semantic dominance.
+
+**Failure-mode audit (120 rows per local model).** Surrounding prose and Markdown are not counted as failures when a complete graph JSON object can be extracted.
+
+| Model | Valid rows | Accounting for the remaining rows |
+|---|---:|---|
+| Gemma-3-12B-IT | 27/120 | 40 context-limit failures; 53 outputs used non-string/numeric endpoints |
+| DeepSeek-V2-Lite-Chat | 60/120 | 40 context-limit failures; 18 lacked a complete graph object; 1 malformed edge; 1 self-loop |
+| Qwen2.5-7B-Instruct | 0/120 | All 120 prompts exceeded the model's context window |
+| Ministral-3-8B-Reasoning | 0/120 | The reasoning endpoint generated tokens, but the client received an empty answer field in all 120 rows |
+
+The last two rows are therefore engineering/protocol outcomes, not estimates of causal-discovery ability. Among Gemma and DeepSeek outputs that are parseable, recovery remains weak, which separates graph quality from serialization failure.
+
+**Matched larger-graph comparison.** The following results use 20 matched runs. The LLM is Qwen3-4B after format and reasoning SFT; ENCO receives the same numerical datasets and budget.
+
+| Graph | ENCO F1 | LLM validity: original labels | LLM F1: original labels | LLM validity: anonymous labels | LLM F1: anonymous labels |
+|---|---:|---:|---:|---:|---:|
+| Child (20 nodes) | 0.652 | 100% | 0.070 | 100% | 0.104 |
+| Chain-25 | 0.609 | 90% | 0.049 | 100% | 0.069 |
+| Jungle-25 | 0.703 | 95% | 0.044 | 100% | 0.095 |
+| Alarm (37 nodes) | 0.677 | 60% | 0.022 | 90% | 0.031 |
+
+**Takeaway:** ENCO's F1 of 0.609–0.703 confirms that the numerical datasets contain recoverable signal. LLM recovery remains weak even when validity is high. We therefore treat these experiments as evidence about scalability, not semantic attribution.
+
+**Graph-disjoint post-training.** We completed strict leave-one-graph-out evaluation on Cancer, Earthquake, Asia, and Sachs. Each graph was excluded from both SFT phases. Every checkpoint was evaluated using three independently trained seeds and 20 matched realizations per graph, seed, and condition.
+
+For a direct information-source comparison, **name effect** is `F1(original labels) − F1(anonymous labels)`, while **data effect** is `F1(with data) − F1(without data)`. Confidence intervals use cluster bootstrap resampling over the 12 held-out-graph × training-seed clusters.
+
+| Checkpoint | Name effect without data [95% CI] | Name effect with data [95% CI] | Data effect with original labels [95% CI] | Data effect with anonymous labels [95% CI] |
+|---|---:|---:|---:|---:|
+| Format SFT | +0.341 [0.200, 0.491] | +0.356 [0.232, 0.478] | +0.017 [−0.045, 0.074] | +0.002 [−0.024, 0.029] |
+| Format + reasoning SFT | +0.355 [0.222, 0.496] | +0.315 [0.189, 0.438] | −0.016 [−0.075, 0.039] | +0.024 [0.001, 0.046] |
+
+**Takeaway:** Both post-trained checkpoints have approximately 100% held-out validity, so these differences are not explained by output-format failures. The paired name effects are large, whereas data effects are small and vary by condition. Format SFT reliably transfers output validity, but reasoning SFT does not consistently improve numerical-evidence integration. Because both SFT phases contain gold graph targets, target imitation remains unresolved; we will present post-training as a diagnostic case study rather than evidence of improved causal reasoning.
+
+**Statistical replication.** We expanded the principal Sachs comparison to 30 paired realizations and report paired 95% bootstrap confidence intervals. Here, data effect is `F1(with data) − F1(without data)`, with invalid outputs assigned F1=0.
+
+| Model | Original names: data effect [95% CI] | Anonymous labels: data effect [95% CI] |
+|---|---:|---:|
+| Qwen3-4B base | −0.183 [−0.234, −0.130] | +0.230 [0.207, 0.252] |
+| GPT-5-mini | −0.087 [−0.104, −0.069] | +0.039 [0.017, 0.062] |
+| After format SFT | −0.091 [−0.143, −0.040] | +0.061 [0.023, 0.100] |
+| After format + reasoning SFT | −0.089 [−0.168, −0.010] | +0.061 [0.025, 0.096] |
+
+**Takeaway:** The direction of the data effect depends on label condition: adding data lowers F1 with original names but improves it with anonymous labels in this Sachs slice. Edge-level and name–data-conflict analyses likewise show that numerical evidence changes many local decisions, but corrections are frequently offset by regressions. We therefore describe numerical-evidence integration as partial and unstable, rather than claiming that models categorically ignore data.
+
+Accordingly, we will narrow the paper's conclusion. We will no longer claim that semantic information is universally the dominant source of causal recovery. Our supported conclusion is:
+
+> **For the evaluated models and held-out benchmark graphs, recovery is strongly name-mediated, while integration of the supplied numerical evidence is comparatively small and unstable.**
+
+“Name-mediated” deliberately does not distinguish genuine semantic reasoning from pretraining familiarity. The larger neutral-label graphs establish scale and protocol coverage, not semantic attribution.
+
+We sincerely thank the reviewers for prompting these analyses: their comments led us to test held-out graphs, larger novel graphs, additional model families, matched classical baselines, and stronger statistical replication. Overall, the added experiments broaden model and graph coverage, verify that the numerical datasets contain recoverable signal, and show that output validity alone does not yield reliable graph recovery. We will incorporate the complete results, failure-mode analysis, and narrowed claims in the revision.
+
+<!-- COPY END: global -->
 
 ---
 
@@ -36,9 +121,9 @@ The familiarity of Asia, Earthquake, Cancer, and Sachs increases the risk of pre
 
 To address limited graph scale and possible reliance on familiar benchmark structures, we added 20–37-node evaluations, including the newly generated Chain-25 and Jungle-25, plus degree-preserving rewired Child variants that place familiar names in conflict with new numerical evidence. These controls probe, but cannot eliminate, pretraining familiarity.
 
-For these evaluations, `Base` denotes Qwen3-4B-Thinking-2507 before our fine-tuning. **Format SFT** trains the model to produce structured responses containing gold graph targets; **reasoning SFT** then continues supervised training with gold answers, concise rationales, and teacher-generated rationales. We evaluated the model after both SFT phases on 20 paired realizations per comparison: 4 fixed column-order seeds × 5 independent data draws per order. Within each realization, the same draw is shared across label conditions. The table reports data-present results after format SFT + reasoning SFT. **Validity** is the percentage of outputs satisfying the structured-output contract and parseable at the expected graph size; acyclicity is evaluated separately. Directed-edge **F1** measures recovery of the true directed edges, with invalid outputs assigned F1=0. Child and Alarm are established 20- and 37-node graphs; Chain-25 is a directed chain; and Jungle-25 is a denser hierarchical DAG with connections spanning up to two levels.
+For these evaluations, `Base` denotes Qwen3-4B-Thinking-2507 before our fine-tuning. **Format SFT** trains the model to produce structured responses containing gold graph targets; **reasoning SFT** then continues supervised training with gold answers, concise rationales, and teacher-generated rationales. We evaluated the model after both SFT phases on 20 paired realizations per comparison: 4 fixed column-order seeds × 5 independent data draws per order. Within each realization, the same draw is shared across label conditions. The table reports data-present results after format SFT + reasoning SFT. Before computing **validity** or graph metrics, exact repeated copies of the same directed edge are collapsed. Validity is then the percentage of outputs satisfying the remaining structured-output requirements and parseable at the expected graph size; acyclicity is evaluated separately. Directed-edge **F1** measures recovery of the true directed edges, with invalid outputs assigned F1=0. Child and Alarm are established 20- and 37-node graphs; Chain-25 is a directed chain; and Jungle-25 is a denser hierarchical DAG with connections spanning up to two levels.
 
-Because an edge list represents a set, exact repeated copies of the same directed edge are collapsed before scoring; they neither add an edge nor invalidate the graph. Self-loops, unknown endpoints, malformed edges, and truncations remain invalid. All values below use this scoring rule and aggregate 20 runs per cell. ENCO uses the same 20 datasets and numerical budget (1,000 observational samples and 10 samples per intervention):
+Because an edge list represents a set, exact repeated copies of the same directed edge are collapsed before scoring; they neither add an edge nor invalidate the graph. Self-loops, unknown endpoints, malformed edges, and truncations remain invalid. All values below use this scoring rule and aggregate 20 runs per cell. ENCO uses the same 20 datasets and numerical budget (1,000 observational samples and 10 interventional samples per target):
 
 **Larger-graph recovery.**
 
@@ -159,7 +244,7 @@ Thank you for recognizing the importance of separating variable-name and numeric
 
 ### W1 / Q1 — Larger and more complex graphs
 
-We ran the original/anonymous-label × data/no-data design on four 20–37-node graphs over 20 matched runs (4 column orders × 5 independent draws). The table reports data-present Qwen3-4B results after format and reasoning SFT. Validity means contract-compliant output at the expected graph size; acyclicity is separate, and invalid outputs receive F1=0. Exact duplicate edges are collapsed, while self-loops, unknown endpoints, malformed edges, and truncations remain invalid. All values below use this scoring rule and aggregate 20 runs per cell. ENCO uses the same 20 datasets and numerical budget.
+We ran the original/anonymous-label × data/no-data design on four 20–37-node graphs over 20 matched runs (4 column orders × 5 independent draws). The table reports data-present Qwen3-4B results after format and reasoning SFT. Before computing validity or graph metrics, exact repeated copies of the same directed edge are collapsed. Validity then requires a contract-compliant output at the expected graph size; self-loops, unknown endpoints, malformed edges, and truncations remain invalid. Acyclicity is evaluated separately, and invalid outputs receive F1=0. All values below use this scoring rule and aggregate 20 runs per cell. ENCO uses the same 20 datasets and numerical budget.
 
 **Larger-graph recovery.**
 
@@ -254,7 +339,7 @@ After format SFT + reasoning SFT, we compared predictions with and without data 
 
 ### W4 / Q5 — Model coverage
 
-The submission evaluates ten GPT-5/Llama/Qwen models, and the rebuttal adds a 30-run GPT-5-mini replication. During the rebuttal period, we also completed interim 10-run evaluations of Granite-3.2-8B and DeepSeek-V2-Lite-Chat (an actual DeepSeek-family checkpoint) on Child, Sachs, and larger graphs; 20-run replications are ongoing. We report these interim results only descriptively and do not use them for confidence intervals or small-effect claims. We will include the completed cross-family coverage, uncertainty estimates, and failure-mode analysis in the revised manuscript. Separately, three Ministral reasoning checkpoints produced 0% strict validity on the completed Child/Sachs grid, and preliminary DeepSeek-R1-Distill-Llama-8B outputs were invalid. We treat these as protocol-compatibility failures, not causal-capability evidence; main inferential conclusions remain scoped to GPT/Qwen/Llama.
+The submission evaluates ten GPT-5/Llama/Qwen models, and the rebuttal adds a 30-run GPT-5-mini replication. We also completed 20 matched runs per graph on a common 5-, 8-, 11-, 20-, 25-, 37-, and 50-node ladder for nine local checkpoints spanning Gemma, Mistral, Llama, Qwen, DeepSeek, and Granite. GPT-5-mini was evaluated on all six graphs in the shared 20–50-node comparison. Complete graph JSON is accepted even when surrounded by reasoning or Markdown, and repeated edges are deduplicated. On this subset, mean validity/F1 is 22.5%/0.007 for Gemma, 50.0%/0.033 for DeepSeek, 59.2%/0.040 for Llama, 66.7%/0.057 for Granite, 83.3–92.5%/0.051–0.057 for the Qwen3 checkpoints, and 100%/0.002 for GPT-5-mini. Qwen2.5 exceeded its context window, while the Ministral endpoint returned no saved answer content; we treat those zero rows as protocol/inference failures, not causal-capability evidence. The main inferential conclusions remain scoped to the fully powered comparisons.
 
 ### Formatting concern — Dataset access
 
