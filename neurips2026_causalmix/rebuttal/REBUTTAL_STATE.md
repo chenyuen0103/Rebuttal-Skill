@@ -11,7 +11,7 @@
 - Raw reviews: `REVIEWS_RAW.md`
 - Current phase: Phase 3 complete (strategy only)
 - Drafting status: intentionally not started
-- Missing before final drafting: NeurIPS response format and character/word limit; API/model access and budget; code/checkpoint availability; exact RTX 6000 VRAM generation
+- Official comment limit confirmed as 5,000 characters. The pasteable global response is 4,784 characters; its descriptive title is stored separately for OpenReview's title field.
 
 ## Safety boundaries
 

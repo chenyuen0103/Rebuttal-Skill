@@ -157,6 +157,7 @@ Responsible Reviewing Acknowledgement: Yes
 - [Official review — Reviewer svky](#official-review--reviewer-svky)
 - [Official review — Reviewer mUVt](#official-review--reviewer-muvt)
 - [Official review — Reviewer zDep](#official-review--reviewer-zdep)
+- [Official comment — Reviewer zDep, 29 Jul 2026](#official-comment--reviewer-zdep-29-jul-2026)
 
 ---
 
@@ -602,3 +603,14 @@ One of the URLs provided in the paper could not be accessed during review, which
 > _Response:_ Thank you for reporting this. We verified the dataset on July 24, 2026 from two unauthenticated browsers on separate networks and downloaded the complete archive successfully. The direct URL is [https://huggingface.co/datasets/mixcausalbench/anonymous-data](https://huggingface.co/datasets/mixcausalbench/anonymous-data).
 >
 > _Evidence / revision:_ Put the exact link in the rebuttal and manuscript, and add a file inventory, archive SHA-256, access date, and minimal download/regeneration commands. We treat the inconsistent reviewer experience as an artifact-documentation problem even though the link is now reachable.
+
+---
+
+## Official comment — Reviewer zDep, 29 Jul 2026
+
+**Posted:** 29 Jul 2026, 04:18  
+**Visible to:** Program Chairs, Senior Area Chairs, Area Chairs, Reviewers Submitted, Authors
+
+Thank you for the additional experiments and clarifications. The rebuttal substantially improves the empirical completeness of the paper by addressing several of my previous concerns, including evaluation on larger graphs, leave-one-graph-out analysis, and statistical robustness.
+
+However, I still believe the main claim requires further support. The new results show that LLMs have limited and unstable utilization of numerical evidence, but they do not fully demonstrate that semantic information is the dominant source of causal graph recovery performance. The large-scale experiments mainly reveal poor scalability, while the post-training analysis does not completely disentangle output-format learning, target imitation, and genuine causal reasoning improvement. Therefore, I would maintain my score.

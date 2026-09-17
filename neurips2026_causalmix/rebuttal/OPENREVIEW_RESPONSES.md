@@ -9,26 +9,20 @@ Throughout the tables:
 
 ---
 
-## Global response — Additional model-family and graph-scale coverage
+## Global response — New cross-family, 20–50-node, graph-disjoint, and 30-replication experiments
+
+**OpenReview title:** Consolidated experimental update: model coverage, graph scale, train–test independence, and robustness
 
 <!-- COPY START: global -->
 
-### Consolidated experimental update and revised claim scope
+We thank the reviewers for recognizing CausalMix's important question and controlled design. We address four shared concerns: model coverage, scale/familiarity, train–test independence, and robustness. Scale tests use 1,000 observational samples, 10 interventional samples per target, and 20 matched runs per condition. We extract JSON from prose/Markdown, deduplicate edges, and score invalid graphs as F1=0.
 
-Thank you to all reviewers for emphasizing graph scale, model coverage, train–test independence, and statistical robustness. We have now completed the corresponding evaluations.
-
-All added scale experiments use a fixed budget of **1,000 observational samples and 10 interventional samples per target**, averaged over **20 matched runs per condition**. We count an output as parseable when it contains a complete graph JSON object, including when that object follows reasoning text or appears in a Markdown fence. Before computing validity or graph metrics, exact repeated copies of the same directed edge are collapsed. Outputs containing incomplete JSON, self-loops, unknown endpoints, malformed edges, truncations, or other graph-contract violations remain invalid and receive F1=0.
-
-**Coverage.** We evaluated nine local checkpoints spanning Gemma, Mistral, Llama, Qwen, DeepSeek, and Granite on graphs with 5, 8, 11, 20, 25, 37, and 50 nodes. Semantic graphs retain the original/anonymous-label × data/no-data design. Newly generated 25- and 50-node graphs use neutral labels and therefore only the anonymous conditions. We also evaluated GPT-5-mini on all six larger graphs shared by the cross-family comparison.
-
-**Cross-family results on larger graphs.** The shared set contains Child-20, Chain-25, Jungle-25, Alarm-37, Chain-50, and Jungle-50. Results are macro-averaged over 20 anonymous, data-present runs per graph. Validity is computed after extracting a complete graph JSON object and deduplicating repeated edges.
+**1. Model coverage.** We report seven scorable local checkpoints from five families plus GPT-5-mini. The table averages 20 anonymous, data-present runs on each of six 20–50-node graphs.
 
 | Model | Mean parse validity | Mean directed-edge F1 |
 |---|---:|---:|
 | Gemma-3-12B-IT | 22.5% | 0.007 |
-| Ministral-3-8B-Reasoning | 0.0% | 0.000 |
 | Llama-3.1-8B-Instruct | 59.2% | 0.040 |
-| Qwen2.5-7B-Instruct | 0.0% | 0.000 |
 | Qwen3-4B-Thinking base | 83.3% | 0.057 |
 | Qwen3-4B after format SFT | 87.5% | 0.051 |
 | Qwen3-4B after format + reasoning SFT | 92.5% | 0.056 |
@@ -36,59 +30,31 @@ All added scale experiments use a fixed budget of **1,000 observational samples 
 | IBM Granite-3.2-8B-Instruct | 66.7% | 0.057 |
 | GPT-5-mini | 100% | 0.002 |
 
-**Takeaway:** GPT-5-mini produced parseable graphs in all 120 runs but achieved only 0.002 mean directed-edge F1. More broadly, accepting complete JSON embedded in prose substantially raises validity for Gemma, DeepSeek, and Qwen3, yet no model exceeds 0.057 mean F1. Thus, weak recovery is not merely an artifact of rejecting usable JSON or limited to the local checkpoints. Qwen2.5 exceeded its context window in these cells, while the Ministral endpoint returned generation traces but no saved answer content; their zero rows are protocol/inference failures and are not evidence about causal capability. This table establishes model breadth and scalability limitations, not semantic dominance.
+**Takeaway:** No model exceeded 0.057 F1. GPT-5-mini's 100% validity consisted mostly of empty DAGs (112/120; median zero edges), explaining its 0.002 F1 and why validity and recovery must be separated. Qwen2.5 produced valid names-only and data-present outputs through 11 nodes, but its 20–50-node evidence prompts grew to 50k–158k tokens, beyond its 32k context. This interface limit motivates compact representations; it is not a capability estimate.
 
-**Failure-mode audit (120 rows per local model).** Surrounding prose and Markdown are not counted as failures when a complete graph JSON object can be extracted.
+**2. Graph scale/familiarity.** We added matched ENCO tests through 50 nodes. ENCO and post-trained Qwen3-4B receive identical datasets and budgets; generated Chain/Jungle graphs have neutral identifiers.
 
-| Model | Valid rows | Accounting for the remaining rows |
-|---|---:|---|
-| Gemma-3-12B-IT | 27/120 | 40 context-limit failures; 53 outputs used non-string/numeric endpoints |
-| DeepSeek-V2-Lite-Chat | 60/120 | 40 context-limit failures; 18 lacked a complete graph object; 1 malformed edge; 1 self-loop |
-| Qwen2.5-7B-Instruct | 0/120 | All 120 prompts exceeded the model's context window |
-| Ministral-3-8B-Reasoning | 0/120 | The reasoning endpoint generated tokens, but the client received an empty answer field in all 120 rows |
+| Graph | ENCO F1 | LLM original: F1 (validity) | LLM anonymous: F1 (validity) |
+|---|---:|---:|---:|
+| Child-20 | 0.652 | 0.070 (100%) | 0.104 (100%) |
+| Chain-25 | 0.609 | — | 0.069 (100%) |
+| Jungle-25 | 0.703 | — | 0.095 (100%) |
+| Alarm-37 | 0.677 | 0.022 (60%) | 0.031 (90%) |
+| Chain-50 | 0.754 | — | 0.024 (95%) |
+| Jungle-50 | 0.790 | — | 0.011 (70%) |
 
-The last two rows are therefore engineering/protocol outcomes, not estimates of causal-discovery ability. Among Gemma and DeepSeek outputs that are parseable, recovery remains weak, which separates graph quality from serialization failure.
+**Takeaway:** ENCO's 0.609–0.790 F1 confirms recoverable signal, while LLM F1 is at most 0.104 and falls to 0.011–0.024 at 50 nodes. LLM **data-use gain** (`F1(data)−F1(no data)`) is −0.133 to +0.005 at 20–37 nodes and +0.011 to +0.024 at 50 nodes. No-data F1 is 0.000 on both 50-node graphs, so those gains equal data-present F1. Alarm's anonymous advantage partly reflects 90% versus 60% validity; the leave-one-graph-out (LOGO) analysis below directly tests name mediation.
 
-**Matched larger-graph comparison.** The following results use 20 matched runs. The LLM is Qwen3-4B after format and reasoning SFT; ENCO receives the same numerical datasets and budget.
+**3. Train–test independence.** In LOGO training, Cancer, Earthquake, Asia, and Sachs were each excluded from both SFT phases. Across three training seeds and 20 matched realizations, both checkpoints had approximately 100% held-out validity. Format SFT name effects were +0.341 without data and +0.356 with data, versus data-use gains of +0.017 (original) and +0.002 (anonymous); after reasoning SFT, these were +0.355 (no data)/+0.315 (with data) versus −0.016 (original)/+0.024 (anonymous). Cluster-bootstrap CIs exclude zero for all name effects; three of four data-use CIs include zero (exception: anonymous reasoning SFT, +0.024 [0.001, 0.046]). Format learning transfers, but reasoning SFT does not consistently improve evidence integration. Both phases use gold targets, so imitation remains unresolved.
 
-| Graph | ENCO F1 | LLM validity: original labels | LLM F1: original labels | LLM validity: anonymous labels | LLM F1: anonymous labels |
-|---|---:|---:|---:|---:|---:|
-| Child (20 nodes) | 0.652 | 100% | 0.070 | 100% | 0.104 |
-| Chain-25 | 0.609 | 90% | 0.049 | 100% | 0.069 |
-| Jungle-25 | 0.703 | 95% | 0.044 | 100% | 0.095 |
-| Alarm (37 nodes) | 0.677 | 60% | 0.022 | 90% | 0.031 |
+**4. Statistical robustness.** On 30 paired Sachs realizations, data-use gains for base Qwen3, GPT-5-mini, format SFT, and reasoning SFT were respectively −0.183, −0.087, −0.091, and −0.089 with original names, but +0.230, +0.039, +0.061, and +0.061 anonymously; all paired 95% CIs exclude zero. Edge-level and name–data-conflict analyses also find corrections offset by regressions. We therefore describe numerical-evidence integration as partial and unstable, not absent.
 
-**Takeaway:** ENCO's F1 of 0.609–0.703 confirms that the numerical datasets contain recoverable signal. LLM recovery remains weak even when validity is high. We therefore treat these experiments as evidence about scalability, not semantic attribution.
-
-**Graph-disjoint post-training.** We completed strict leave-one-graph-out evaluation on Cancer, Earthquake, Asia, and Sachs. Each graph was excluded from both SFT phases. Every checkpoint was evaluated using three independently trained seeds and 20 matched realizations per graph, seed, and condition.
-
-For a direct information-source comparison, **name effect** is `F1(original labels) − F1(anonymous labels)`, while **data effect** is `F1(with data) − F1(without data)`. Confidence intervals use cluster bootstrap resampling over the 12 held-out-graph × training-seed clusters.
-
-| Checkpoint | Name effect without data [95% CI] | Name effect with data [95% CI] | Data effect with original labels [95% CI] | Data effect with anonymous labels [95% CI] |
-|---|---:|---:|---:|---:|
-| Format SFT | +0.341 [0.200, 0.491] | +0.356 [0.232, 0.478] | +0.017 [−0.045, 0.074] | +0.002 [−0.024, 0.029] |
-| Format + reasoning SFT | +0.355 [0.222, 0.496] | +0.315 [0.189, 0.438] | −0.016 [−0.075, 0.039] | +0.024 [0.001, 0.046] |
-
-**Takeaway:** Both post-trained checkpoints have approximately 100% held-out validity, so these differences are not explained by output-format failures. The paired name effects are large, whereas data effects are small and vary by condition. Format SFT reliably transfers output validity, but reasoning SFT does not consistently improve numerical-evidence integration. Because both SFT phases contain gold graph targets, target imitation remains unresolved; we will present post-training as a diagnostic case study rather than evidence of improved causal reasoning.
-
-**Statistical replication.** We expanded the principal Sachs comparison to 30 paired realizations and report paired 95% bootstrap confidence intervals. Here, data effect is `F1(with data) − F1(without data)`, with invalid outputs assigned F1=0.
-
-| Model | Original names: data effect [95% CI] | Anonymous labels: data effect [95% CI] |
-|---|---:|---:|
-| Qwen3-4B base | −0.183 [−0.234, −0.130] | +0.230 [0.207, 0.252] |
-| GPT-5-mini | −0.087 [−0.104, −0.069] | +0.039 [0.017, 0.062] |
-| After format SFT | −0.091 [−0.143, −0.040] | +0.061 [0.023, 0.100] |
-| After format + reasoning SFT | −0.089 [−0.168, −0.010] | +0.061 [0.025, 0.096] |
-
-**Takeaway:** The direction of the data effect depends on label condition: adding data lowers F1 with original names but improves it with anonymous labels in this Sachs slice. Edge-level and name–data-conflict analyses likewise show that numerical evidence changes many local decisions, but corrections are frequently offset by regressions. We therefore describe numerical-evidence integration as partial and unstable, rather than claiming that models categorically ignore data.
-
-Accordingly, we will narrow the paper's conclusion. We will no longer claim that semantic information is universally the dominant source of causal recovery. Our supported conclusion is:
+These results support CausalMix as an Evaluations & Datasets contribution: separating validity, name-mediated support, and evidence use reveals failures hidden by aggregate scores. These are benchmark findings—not failures—and provide reproducible targets. We narrow the behavioral claim to:
 
 > **For the evaluated models and held-out benchmark graphs, recovery is strongly name-mediated, while integration of the supplied numerical evidence is comparatively small and unstable.**
 
-“Name-mediated” deliberately does not distinguish genuine semantic reasoning from pretraining familiarity. The larger neutral-label graphs establish scale and protocol coverage, not semantic attribution.
+Here, “name-mediated” does not distinguish semantic reasoning from pretraining familiarity; neutral-label graphs establish scale, not semantic attribution. In revision, we will add these full analyses and artifacts, state parsing/scoring and CIs explicitly, present post-training as a diagnostic case study, define key terms, and restrict conclusions to this supported scope. We thank the reviewers for prompting these substantive improvements.
 
-We sincerely thank the reviewers for prompting these analyses: their comments led us to test held-out graphs, larger novel graphs, additional model families, matched classical baselines, and stronger statistical replication. Overall, the added experiments broaden model and graph coverage, verify that the numerical datasets contain recoverable signal, and show that output validity alone does not yield reliable graph recovery. We will incorporate the complete results, failure-mode analysis, and narrowed claims in the revision.
 
 <!-- COPY END: global -->
 
@@ -339,7 +305,7 @@ After format SFT + reasoning SFT, we compared predictions with and without data 
 
 ### W4 / Q5 — Model coverage
 
-The submission evaluates ten GPT-5/Llama/Qwen models, and the rebuttal adds a 30-run GPT-5-mini replication. We also completed 20 matched runs per graph on a common 5-, 8-, 11-, 20-, 25-, 37-, and 50-node ladder for nine local checkpoints spanning Gemma, Mistral, Llama, Qwen, DeepSeek, and Granite. GPT-5-mini was evaluated on all six graphs in the shared 20–50-node comparison. Complete graph JSON is accepted even when surrounded by reasoning or Markdown, and repeated edges are deduplicated. On this subset, mean validity/F1 is 22.5%/0.007 for Gemma, 50.0%/0.033 for DeepSeek, 59.2%/0.040 for Llama, 66.7%/0.057 for Granite, 83.3–92.5%/0.051–0.057 for the Qwen3 checkpoints, and 100%/0.002 for GPT-5-mini. Qwen2.5 exceeded its context window, while the Ministral endpoint returned no saved answer content; we treat those zero rows as protocol/inference failures, not causal-capability evidence. The main inferential conclusions remain scoped to the fully powered comparisons.
+The submission evaluates ten GPT-5/Llama/Qwen models, and the rebuttal adds a 30-run GPT-5-mini replication. We also completed 20 matched runs per graph on a common 5-, 8-, 11-, 20-, 25-, 37-, and 50-node ladder for eight local checkpoints spanning Gemma, Llama, Qwen, DeepSeek, and Granite. GPT-5-mini was evaluated on all six graphs in the shared 20–50-node comparison. Complete graph JSON is accepted even when surrounded by reasoning or Markdown, and repeated edges are deduplicated. On this subset, mean validity/F1 is 22.5%/0.007 for Gemma, 50.0%/0.033 for DeepSeek, 59.2%/0.040 for Llama, 66.7%/0.057 for Granite, 83.3–92.5%/0.051–0.057 for the Qwen3 checkpoints, and 100%/0.002 for GPT-5-mini. Qwen2.5's data-present prompts exceeded its serving context at 20–50 nodes; we treat this as an interface-scaling limit, not a causal-capability estimate. The main inferential conclusions remain scoped to the fully powered comparisons.
 
 ### Formatting concern — Dataset access
 
@@ -348,3 +314,25 @@ On July 26, 2026, we verified through unauthenticated access that the dataset re
 Thank you again for the thoughtful feedback. We will incorporate these results and scope clarifications in the revision.
 
 <!-- COPY END: zDep -->
+
+---
+
+## Follow-up to Reviewer zDep's official comment
+
+**OpenReview title:** Clarification of the revised claim and post-training interpretation
+
+<!-- COPY START: zDep-followup -->
+
+Thank you for this careful follow-up and for recognizing the improvements in empirical completeness. We agree with the evidentiary boundaries you identify and have narrowed the claim accordingly — the narrowing concerns generality, not the finding itself, which reproduced under every added control on the held-out graphs. The new results do **not** establish that semantic information is generally the dominant source of recovery, and we will remove that interpretation. Our revised claim is:
+
+> **For the evaluated models and held-out benchmark graphs, recovery is strongly name-mediated, while integration of the supplied numerical evidence is comparatively small and unstable.**
+
+The graph-disjoint analysis directly supports this statement. With the graph, numerical realization, and training exclusion held fixed, name effects (F1 with original labels minus anonymous labels) are +0.341/+0.356 after format SFT and +0.355/+0.315 after reasoning SFT (without/with data), versus data-use gains of +0.017/+0.002 and −0.016/+0.024 (original/anonymous). All name-effect cluster-bootstrap CIs exclude zero; three of four data-use CIs include zero. On these held-out graphs, the name effect therefore exceeds the largest data-use gain by an order of magnitude. Both checkpoints have approximately 100% held-out validity, so output-format failure does not explain the contrast. **Name-mediated** deliberately does not distinguish semantic reasoning from benchmark familiarity or broader pretraining associations.
+
+We likewise agree that the larger-graph experiments characterize scalability limits and weak evidence integration, not semantic dominance. Under matched data, ENCO reaches F1=0.609–0.790 through 50 nodes while the LLM remains at 0.011–0.104 with data-use gains of −0.133 to +0.024 (full 20–50-node and cross-family tables in the global response): the numerical signal is recoverable, but the evaluated LLM does not use it reliably, and we do not attribute the remaining recovery to semantics.
+
+On post-training, we claim output reliability only. Format SFT transfers near-perfect validity to held-out graphs, but reasoning SFT does not consistently improve data-use gain, and both phases contain gold graph targets, so target imitation remains unresolved. The revision presents post-training as a diagnostic case study, not as improved causal reasoning.
+
+These distinctions are what the benchmark you described as “carefully designed and logically structured” is built to expose: aggregate scores conflate formatting, name sensitivity, local data responsiveness, and reliable recovery. The completed package—larger and newly generated graphs, strict LOGO training, a 30-pair replication with CIs, edge-level analyses, five-family coverage plus GPT-5-mini, and verified public dataset access—separates them, and with the dominance interpretation removed, the revised paper claims only what this evidence supports. We would be glad to address any remaining concerns during the discussion period.
+
+<!-- COPY END: zDep-followup -->
